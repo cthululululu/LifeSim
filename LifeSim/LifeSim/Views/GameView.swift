@@ -31,18 +31,22 @@ struct GameView: View, Hashable {
                     .shadow(radius: 5)
                     .padding(.top)
             }
+            .zIndex(1)
             .frame(height: UIScreen.main.bounds.height * 0.15)
             
             ///#======= SPRITEKIT CONTENT CONTAINER ============
             ZStack {
-                HStack {
+                VStack {
                     // Character animations
-                    GameViewControllerRepresentable(selectedCharacterIndex: $selectedCharacterIndex)
-                        .frame(width: 200, height: 580)
-                    
                     Text("Character: \(characters[selectedCharacterIndex])")
                         .font(.title)
-                        .padding(.top, 20)
+                        
+                    
+                    GameViewControllerRepresentable(selectedCharacterIndex: $selectedCharacterIndex)
+                        .frame(width: 300, height: 200)
+                    
+                    
+                    
                 }
             }
             .frame(height: UIScreen.main.bounds.height * 0.40)
@@ -490,12 +494,12 @@ class GameScene: SKScene {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         playerBoy = SKSpriteNode(texture: playerIdleTexturesBoy[0])
         playerBoy.setScale(0.3)
-        playerBoy.position = CGPoint(x:-10, y:0) // Center of the scene
+        playerBoy.position = CGPoint(x:-50, y:0) // Center of the scene
         
         // Setting up Girl Character Sprite
         playerGirl = SKSpriteNode(texture: playerIdleTexturesGirl[0])
         playerGirl.setScale(0.3)
-        playerGirl.position = CGPoint(x: 50, y: 0)
+        playerGirl.position = CGPoint(x:90, y:0)
         
         // Add to scene
         addChild(playerBoy)
@@ -528,6 +532,8 @@ class GameScene: SKScene {
             return
         }
         let location = touch.location(in: self)
+        let boyTapZone = playerBoy.frame.insetBy(dx: -10, dy: -10)
+        let girlTapZone = playerGirl.frame.insetBy(dx: -10, dy: -10)
         if playerBoy.contains(location) {
             switchCharacter(to: 0)
         } else if playerGirl.contains(location) {
@@ -538,15 +544,16 @@ class GameScene: SKScene {
     }
 } ///# ============= END OF SPRITEKIT TOOLS =============
 
-
-// For XCode Preview Purposes only:
+// Assuming GameView is the main view you want to preview
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
+        
+        // Creating a sample PlayerData instance for preview purposes
         let newPlayer = PlayerData(context: context)
-        newPlayer.playerName = "Example Player"
+        newPlayer.playerName = "Sample Player"
         newPlayer.saveDate = Date()
-
+        
         return GameView(player: newPlayer)
             .environment(\.managedObjectContext, context)
     }
