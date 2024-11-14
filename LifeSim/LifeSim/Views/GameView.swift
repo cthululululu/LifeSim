@@ -31,6 +31,7 @@ struct GameView: View, Hashable {
                     .shadow(radius: 5)
                     .padding(.top)
             }
+            .zIndex(1)
             .frame(height: UIScreen.main.bounds.height * 0.15)
             
             ///#======= SPRITEKIT CONTENT CONTAINER ============
@@ -538,15 +539,16 @@ class GameScene: SKScene {
     }
 } ///# ============= END OF SPRITEKIT TOOLS =============
 
-
-// For XCode Preview Purposes only:
+// Assuming GameView is the main view you want to preview
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
+        
+        // Creating a sample PlayerData instance for preview purposes
         let newPlayer = PlayerData(context: context)
-        newPlayer.playerName = "Example Player"
+        newPlayer.playerName = "Sample Player"
         newPlayer.saveDate = Date()
-
+        
         return GameView(player: newPlayer)
             .environment(\.managedObjectContext, context)
     }
