@@ -141,19 +141,35 @@ struct HomeView: View {
     }
     
     // Function creates a new saved game and PlayerData entity
-    func startNewGame(playerName: String) {
+    func startNewGame(playerName: String, gender: String?, intelligence: Int, charisma: Int, luck: Int) {
         // Defines instance of PlayerData entity
         let newPlayer = PlayerData(context: viewContext)
         
-        // Sets initial attributes
+        // Sets Player's initial attributes
         newPlayer.playerName = playerName
+        newPlayer.gender = gender
+        newPlayer.intelligence = Int16(intelligence)
+        newPlayer.charisma = Int16(charisma)
+        newPlayer.luck = Int16(luck)
         newPlayer.saveDate = Date()
+        newPlayer.playerBalance = 0
+        newPlayer.health = 100
+        newPlayer.stress = 0
+        newPlayer.playerAge = 21
+        
+        // Sets Player's time attributes
+        newPlayer.currentInterval = 0
+        newPlayer.timeUsed = 0
+        
+        // Prints New Player Attributes to Console
+        print("Player Name: \(playerName), Save Date: \(newPlayer.saveDate ?? Date()), Gender: \(gender ?? "Not selected"), Intelligence: \(intelligence), Charisma: \(charisma), Luck: \(luck), Player Balance: \(newPlayer.playerBalance), Health: \(newPlayer.health), Stress: \(newPlayer.stress), Player Age: \(newPlayer.playerAge)")
         
         // Error Handling for nsErrors
         do {
             // Saves newPlayer to CoreData context
             try viewContext.save()
-            print("New Game Started on \(newPlayer.saveDate ?? Date())")
+            
+            
             
             // Navigates player to GameView with initialized player data
             path.append(GameView(player: newPlayer))
@@ -163,6 +179,8 @@ struct HomeView: View {
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
+
+
     
     /** Have not been able to get this preview to work properly. Use simulator to test.
      
