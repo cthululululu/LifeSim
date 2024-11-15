@@ -36,14 +36,17 @@ struct GameView: View, Hashable {
             
             ///#======= SPRITEKIT CONTENT CONTAINER ============
             ZStack {
-                HStack {
+                VStack {
                     // Character animations
-                    GameViewControllerRepresentable(selectedCharacterIndex: $selectedCharacterIndex)
-                        .frame(width: 200, height: 580)
-                    
                     Text("Character: \(characters[selectedCharacterIndex])")
                         .font(.title)
-                        .padding(.top, 20)
+                        
+                    
+                    GameViewControllerRepresentable(selectedCharacterIndex: $selectedCharacterIndex)
+                        .frame(width: 400, height: 200)
+                    
+                    
+                    
                 }
             }
             .frame(height: UIScreen.main.bounds.height * 0.40)
@@ -491,12 +494,12 @@ class GameScene: SKScene {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         playerBoy = SKSpriteNode(texture: playerIdleTexturesBoy[0])
         playerBoy.setScale(0.3)
-        playerBoy.position = CGPoint(x:-10, y:0) // Center of the scene
+        playerBoy.position = CGPoint(x:-60, y:0) // Center of the scene
         
         // Setting up Girl Character Sprite
         playerGirl = SKSpriteNode(texture: playerIdleTexturesGirl[0])
         playerGirl.setScale(0.3)
-        playerGirl.position = CGPoint(x: 50, y: 0)
+        playerGirl.position = CGPoint(x: 100, y:0)
         
         // Add to scene
         addChild(playerBoy)
@@ -529,9 +532,14 @@ class GameScene: SKScene {
             return
         }
         let location = touch.location(in: self)
-        if playerBoy.contains(location) {
+        
+        let boyTapZone = CGRect(x:playerBoy.position.x-100, y: playerBoy.position.y-50, width: 100, height: 100)
+        
+        let girlTapZone = playerGirl.frame
+        
+        if boyTapZone.contains(location) {
             switchCharacter(to: 0)
-        } else if playerGirl.contains(location) {
+        } else if girlTapZone.contains(location) {
             switchCharacter(to: 1)
         }
         
