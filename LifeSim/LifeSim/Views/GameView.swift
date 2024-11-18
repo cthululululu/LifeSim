@@ -13,9 +13,8 @@ struct GameView: View, Hashable {
     @ObservedObject var player: PlayerData
     // Initializes current game section to being in the main section
     @State private var currentSection: GameSection = .main
-    @State var selectedCharacterIndex = 0
+    
     // Character names
-    let characters = ["John", "Jane"]
     
     
     var body: some View {
@@ -38,15 +37,7 @@ struct GameView: View, Hashable {
             ZStack {
                 VStack {
                     // Character animations
-                    Text("Character: \(characters[selectedCharacterIndex])")
-                        .font(.title)
-                        
-                    
-                    GameViewControllerRepresentable(selectedCharacterIndex: $selectedCharacterIndex)
-                        .frame(width: 400, height: 200)
-                    
-                    
-                    
+                    SpriteView(scene: GameScene(size: CGSize(width: 300, height: 300),playerName: player.playerName ?? "Unknown", gender: player.gender ?? "Male"))
                 }
             }
             .frame(height: UIScreen.main.bounds.height * 0.40)
@@ -467,11 +458,21 @@ struct GameView: View, Hashable {
 
 // contains sprite animations and logic for choosing character
 class GameScene: SKScene {
-    var characterIndex: Int = 0 // 0 for boy, 1 for girl
+    var gender: String
+    var playerName: String
+    var nameLabel: SKLabelNode!
     var playerBoy: SKSpriteNode!
     var playerGirl: SKSpriteNode!
     
-    var onCharacterChanged: ((Int) -> Void)?
+    init(size: CGSize, playerName: String, gender: String) {
+        self.playerName = playerName
+        self.gender = gender
+        super.init(size: size)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // Texture atlas for all characters
     var playerAtlas: SKTextureAtlas {
@@ -488,33 +489,45 @@ class GameScene: SKScene {
         return (2...16).map { playerAtlas.textureNamed("Girl (\($0))") }
     }
     
+    func configureCharacter(name: String, gender:String) {
+        self.gender = gender
+        self.playerName = name
+        setUpPlayers()
+    }
     // Initial player texture and position
     func setUpPlayers() {
         // Setting up Boy Character Sprite
-        anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        playerBoy = SKSpriteNode(texture: playerIdleTexturesBoy[0])
-        playerBoy.setScale(0.3)
-        playerBoy.position = CGPoint(x:-60, y:0) // Center of the scene
-        
-        // Setting up Girl Character Sprite
-        playerGirl = SKSpriteNode(texture: playerIdleTexturesGirl[0])
-        playerGirl.setScale(0.3)
-        playerGirl.position = CGPoint(x: 100, y:0)
-        
-        // Add to scene
+        playerBoy = SKSpriteNode(imageNamed: "maleSprite")
+        playerBoy.position = CGPoint(x: size.width/2 + 32, y:size.height/2)
+       // playerBoy.setScale(0.8)
         addChild(playerBoy)
+        
+        
+        playerGirl = SKSpriteNode(imageNamed: "femaleSprite")
+        playerGirl.position = CGPoint(x: size.width/2 - 5, y:size.height/2)
+        playerGirl.setScale(0.7)
         addChild(playerGirl)
+        
+        nameLabel = SKLabelNode(text:playerName)
+        nameLabel.fontSize = 35
+        nameLabel.fontColor = .black
+        nameLabel.position = CGPoint(x:size.width/2, y:size.height/2 + 75)
+        addChild(nameLabel)
+        
+        if gender == "Male" {
+            playerBoy.isHidden = false
+            playerGirl.isHidden = true
+        } else {
+            playerBoy.isHidden = true
+            playerGirl.isHidden = false
+        }
+        startIdleAnimations()
     }
     
     // Called when scene appears
     override func didMove(to view: SKView) {
         backgroundColor = SKColor.white
         setUpPlayers()
-        startIdleAnimations() // Idle animation starts
-    }
-    
-    func switchCharacter(to index: Int) {
-        onCharacterChanged?(index)
     }
     
     // Animating sprites
@@ -526,25 +539,6 @@ class GameScene: SKScene {
         playerGirl.run(SKAction.repeatForever(girlIdleAnimation), withKey: "playerIdleAnimationGirl")
     }
     
-    // Touch logic for switching character
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else {
-            return
-        }
-        let location = touch.location(in: self)
-        
-        let boyTapZone = CGRect(x:playerBoy.position.x-100, y: playerBoy.position.y-50, width: 100, height: 100)
-        
-        let girlTapZone = playerGirl.frame
-        
-        if boyTapZone.contains(location) {
-            switchCharacter(to: 0)
-        } else if girlTapZone.contains(location) {
-            switchCharacter(to: 1)
-        }
-        
-        
-    }
 } ///# ============= END OF SPRITEKIT TOOLS =============
 
 // Assuming GameView is the main view you want to preview
@@ -554,10 +548,13 @@ struct GameView_Previews: PreviewProvider {
         
         // Creating a sample PlayerData instance for preview purposes
         let newPlayer = PlayerData(context: context)
-        newPlayer.playerName = "Sample Player"
+        newPlayer.playerName = "Jane"
+        newPlayer.gender = "Female"
         newPlayer.saveDate = Date()
         
-        return GameView(player: newPlayer)
+        return GameView(
+            player: newPlayer
+        )
             .environment(\.managedObjectContext, context)
     }
 }
