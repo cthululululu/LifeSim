@@ -7,14 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF935DDC2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AF935DDA2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodeld */; };
 		AF93DB6F2CE41D1E00B9475C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF93DAC62CE3FECA00B9475C /* Assets.xcassets */; };
+		DB7860612CED582500B2842B /* BlackjackScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7860602CED582500B2842B /* BlackjackScene.swift */; };
+		DB7860642CED597B00B2842B /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7860632CED597B00B2842B /* GameScene.swift */; };
 		DB9810C02CB1F9E5007950A0 /* CreateCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB9810BF2CB1F9E4007950A0 /* CreateCharacterView.swift */; };
 		DB9810C22CB1FA1D007950A0 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB9810C12CB1FA1D007950A0 /* GameView.swift */; };
 		DBA3E6642CABA04C0006036A /* LifeSimApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA3E6632CABA04C0006036A /* LifeSimApp.swift */; };
 		DBA3E6752CABA04D0006036A /* LifeSimTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA3E6742CABA04D0006036A /* LifeSimTests.swift */; };
 		DBA3E67F2CABA04D0006036A /* LifeSimUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA3E67E2CABA04D0006036A /* LifeSimUITests.swift */; };
 		DBA3E6812CABA04D0006036A /* LifeSimUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA3E6802CABA04D0006036A /* LifeSimUITestsLaunchTests.swift */; };
+		DBC064782CEADD0D00088B32 /* LifeSimAppModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DBC064762CEADD0D00088B32 /* LifeSimAppModel.xcdatamodeld */; };
 		DBE2EB2F2CBAE7AD00683479 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE2EB2E2CBAE7AC00683479 /* DataController.swift */; };
 		DBE6E2862CB1C93A00FED61B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE6E2852CB1C93A00FED61B /* HomeView.swift */; };
 /* End PBXBuildFile section */
@@ -37,9 +39,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		AF935DDB2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LifeSimAppModel.xcdatamodel; sourceTree = "<group>"; };
 		AF93DAC52CE3FEC800B9475C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AF93DAC62CE3FECA00B9475C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DB7860602CED582500B2842B /* BlackjackScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackjackScene.swift; sourceTree = "<group>"; };
+		DB7860632CED597B00B2842B /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		DB9810BF2CB1F9E4007950A0 /* CreateCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCharacterView.swift; sourceTree = "<group>"; };
 		DB9810C12CB1FA1D007950A0 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		DBA3E6602CABA04C0006036A /* LifeSim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LifeSim.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -49,6 +52,7 @@
 		DBA3E67A2CABA04D0006036A /* LifeSimUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LifeSimUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBA3E67E2CABA04D0006036A /* LifeSimUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeSimUITests.swift; sourceTree = "<group>"; };
 		DBA3E6802CABA04D0006036A /* LifeSimUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeSimUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		DBC064772CEADD0D00088B32 /* LifeSimAppModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LifeSimAppModel.xcdatamodel; sourceTree = "<group>"; };
 		DBE2EB2E2CBAE7AC00683479 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		DBE6E2852CB1C93A00FED61B /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -107,9 +111,18 @@
 		DB70A8A22CBAFB510036F93D /* LocalDB */ = {
 			isa = PBXGroup;
 			children = (
-				AF935DDA2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodeld */,
+				DBC064762CEADD0D00088B32 /* LifeSimAppModel.xcdatamodeld */,
 			);
 			path = LocalDB;
+			sourceTree = "<group>";
+		};
+		DB7860622CED595100B2842B /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				DB7860602CED582500B2842B /* BlackjackScene.swift */,
+				DB7860632CED597B00B2842B /* GameScene.swift */,
+			);
+			path = Scenes;
 			sourceTree = "<group>";
 		};
 		DBA3E6572CABA04C0006036A = {
@@ -135,6 +148,7 @@
 		DBA3E6622CABA04C0006036A /* LifeSim */ = {
 			isa = PBXGroup;
 			children = (
+				DB7860622CED595100B2842B /* Scenes */,
 				DB70A8A22CBAFB510036F93D /* LocalDB */,
 				DB5F15372CE563360041BA4C /* Controllers */,
 				DB6FA1632CE559230041B6B4 /* Views */,
@@ -300,11 +314,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				DBE2EB2F2CBAE7AD00683479 /* DataController.swift in Sources */,
+				DBC064782CEADD0D00088B32 /* LifeSimAppModel.xcdatamodeld in Sources */,
+				DB7860642CED597B00B2842B /* GameScene.swift in Sources */,
 				DBE6E2862CB1C93A00FED61B /* HomeView.swift in Sources */,
+				DB7860612CED582500B2842B /* BlackjackScene.swift in Sources */,
 				DBA3E6642CABA04C0006036A /* LifeSimApp.swift in Sources */,
 				DB9810C22CB1FA1D007950A0 /* GameView.swift in Sources */,
 				DB9810C02CB1F9E5007950A0 /* CreateCharacterView.swift in Sources */,
-				AF935DDC2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -630,14 +646,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		AF935DDA2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodeld */ = {
+		DBC064762CEADD0D00088B32 /* LifeSimAppModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				AF935DDB2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodel */,
+				DBC064772CEADD0D00088B32 /* LifeSimAppModel.xcdatamodel */,
 			);
-			currentVersion = AF935DDB2CEAA248004F26A1 /* LifeSimAppModel.xcdatamodel */;
+			currentVersion = DBC064772CEADD0D00088B32 /* LifeSimAppModel.xcdatamodel */;
 			name = LifeSimAppModel.xcdatamodeld;
-			path = /Users/lulu/Desktop/LifeSim/LifeSim/LifeSim/LocalDB/LifeSimAppModel.xcdatamodeld;
+			path = /Users/cesar/Documents/LifeSim/LifeSim/LifeSim/LocalDB/LifeSimAppModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
