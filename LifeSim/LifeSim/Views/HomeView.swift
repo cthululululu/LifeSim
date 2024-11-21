@@ -156,6 +156,12 @@ struct HomeView: View {
         newPlayer.health = 100
         newPlayer.stress = 0
         newPlayer.playerAge = 21
+        newPlayer.debt = 0
+        newPlayer.loanInterest = 0
+        newPlayer.hasLoan = false
+        newPlayer.hasStock = false
+        newPlayer.stockBalance = 0
+        
         
         // Sets Player's time attributes
         newPlayer.currentInterval = 0
