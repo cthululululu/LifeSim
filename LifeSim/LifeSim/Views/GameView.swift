@@ -5,7 +5,7 @@ import Combine
 
 // Enumeration that defines each section of buttons
 enum GameSection {
-    case main, finances, job, relationships, education, assets, city, casino, blackjack, bank
+    case main, finances, job, relationships, education, assets, city, casino, blackjack, bank, loans, buy_stocks
 }
 
 struct GameView: View, Hashable {
@@ -18,7 +18,7 @@ struct GameView: View, Hashable {
     @StateObject private var blackjackScene = BlackjackScene(size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
     
     @State private var betAmount: Int = 0
-    
+    @State private var loanMessage: String = ""
 
     
     
@@ -92,11 +92,19 @@ struct GameView: View, Hashable {
         do {
             let players = try context.fetch(fetchRequest)
             if let currentPlayer = players.first {
+                
                 currentPlayer.playerBalance = player.playerBalance
+                currentPlayer.stockBalance = player.stockBalance
+                currentPlayer.hasStock = player.hasStock
                 
                 // Save the context
                 try context.save()
-                print("Player balance saved: \(player.playerBalance)")
+                print("\nPlayer balance saved: \(player.playerBalance)")
+                print("Player stock balance saved: \(player.stockBalance)")
+                print("Player hasStock saved: \(player.hasStock)")
+                print("Player debt balance saved: \(player.debt)")
+                
+                
             } else {
                 print("Player not found in Core Data")
             }
@@ -130,6 +138,10 @@ struct GameView: View, Hashable {
                 blackjackButtons()
             } else if currentSection == .bank {
                 bankButtons(player: player)
+            } else if currentSection == .loans {
+                loanButtons(player: player)
+            } else if currentSection == .buy_stocks {
+                buyStockButtons(player: player)
             }
         }
     }
@@ -176,7 +188,10 @@ struct GameView: View, Hashable {
         .padding()
     }
     
-    ///# ============= DEFINES FINANCE BUTTON SET =============
+    ///# =====================================================
+    ///# ============= DEFINES FINANCE BUTTON SET ============
+    ///# =====================================================
+    
     func financeButtons() -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
         return LazyVGrid(columns: columns, spacing: 20) {
@@ -213,27 +228,45 @@ struct GameView: View, Hashable {
                     .cornerRadius(10)
                     .shadow(radius: 5)
             }
+            Button(action: { currentSection = .buy_stocks }) {
+                Text("Invest")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            }
         }
     }
     
     @State private var showLoanAlert = false
-    @State private var loanMessage = ""
     @State private var loanAmount: Double = 0
-
+    @State private var interestRate: Double = 0
 
     func determineLoanAmount(playerBalance: Double) {
         if playerBalance < 1000 {
             loanAmount = 500
-            loanMessage = "You qualify for a loan of $500."
-        } else if playerBalance >= 1000 && playerBalance < 40000 {
-            loanAmount = 10000
-            loanMessage = "You qualify for a loan of $10,000."
-        } else if playerBalance >= 40000 {
-            loanAmount = 35000
-            loanMessage = "You qualify for a loan of $35,000."
+            interestRate = 0.12
+        } else if playerBalance >= 1000 && playerBalance < 5000 {
+            loanAmount = playerBalance * 3
+            interestRate = 0.10
+        } else if playerBalance >= 5000 && playerBalance < 20000 {
+            loanAmount = playerBalance * 2.5
+            interestRate = 0.08
+        } else if playerBalance >= 20000 && playerBalance < 50000 {
+            loanAmount = playerBalance * 2
+            interestRate = 0.07
+        } else if playerBalance >= 50000 {
+            loanAmount = playerBalance * 1.5
+            interestRate = 0.06
         }
         showLoanAlert = true
     }
+
+
 
     func bankButtons(player: PlayerData) -> some View {
         let columns = [GridItem(.flexible())]
@@ -245,7 +278,7 @@ struct GameView: View, Hashable {
                     .foregroundColor(Color.white)
                     .padding()
             }
-            .frame(maxWidth: 300, minHeight: 30)
+            .frame(maxWidth: 250, minHeight: 30)
             .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
             .cornerRadius(10)
             .padding(.horizontal)
@@ -263,8 +296,16 @@ struct GameView: View, Hashable {
                         .cornerRadius(10)
                         .shadow(radius: 5)
                 }
-                Button(action: { determineLoanAmount(playerBalance: player.playerBalance) }) {
-                    Text("Apply for Loan")
+                Button(action: { determineLoanAmount(playerBalance: player.playerBalance)
+                    if player.hasLoan {
+                        loanMessage = "Ready to pay your $\(Int(player.debt).formatted()) debt?"
+                    } else {
+                        loanMessage = "You qualify for a loan of $\(Int(loanAmount).formatted()). Would you like to claim it?\nReturn in 12 months\nInterest Rate: \(Int(interestRate * 100))%"
+                    }
+
+                    currentSection = .loans
+                }) {
+                    Text("Bank Loan")
                         .font(.custom("AvenirNext-Bold", size: 22))
                         .foregroundColor(Color.white)
                         .shadow(radius: 5)
@@ -274,25 +315,331 @@ struct GameView: View, Hashable {
                         .cornerRadius(10)
                         .shadow(radius: 5)
                 }
-                .alert(isPresented: $showLoanAlert) {
-                    Alert(
-                        title: Text("Loan Application"),
-                        message: Text(loanMessage),
-                        primaryButton: .default(Text("Yes")) {
+            }
+        }
+    }
+
+    @State private var disableLoanButtons: Bool = false
+
+    func loanButtons(player: PlayerData) -> some View {
+        
+        return VStack(spacing: 20) {
+            HStack {
+                Text(loanMessage)
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .padding()
+            }
+            .frame(maxWidth: 400, minHeight: 200, maxHeight:200)
+            .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+            .cornerRadius(10)
+            .padding(.horizontal)
+
+            // HStack for Loan Buttons
+            HStack(spacing: 65) { // Add spacing between buttons
+                Button(action: {
+                    
+                    loanMessage = "Thank you for coming! Hope to see you again."
+                    disableLoanButtons = true
+                    if(player.hasLoan && player.debt <= player.playerBalance){
+                        // Player has loan and can pay it off
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
+                            disableLoanButtons = false
+                            player.playerBalance -= player.debt
+                            player.loanInterest = 0
+                            player.debt = 0
+                            player.hasLoan = false
+                            savePlayerBalance(context: viewContext, player: player)
+                            currentSection = .bank
+                        }
+                    } else if(player.hasLoan && player.debt > player.playerBalance) {
+                        // Player has loan but does not have enough money to pay if off
+                        loanMessage = "You do not have sufficient funds. Please come again later"
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
+                            disableLoanButtons = false
+                            currentSection = .bank
+                        }
+                    } else if(!player.hasLoan){
+                        // Player does not have loan and accepts loan
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3){
+                            disableLoanButtons = false
+                            player.loanInterest = interestRate
+                            player.debt += loanAmount
                             player.playerBalance += loanAmount
-                            // Save the updated balance to Core Data
-                            do {
-                                try player.managedObjectContext?.save()
-                            } catch {
-                                print("Failed to save updated player balance: \(error)")
+                            player.hasLoan = true
+                            savePlayerBalance(context: viewContext, player: player)
+                            currentSection = .bank
+                        }
+                    }
+                }) {
+                    Text("Yes")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                        .background(Color.green)
+                        .opacity(disableLoanButtons ? 0.5 : 1)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+                .disabled(disableLoanButtons)
+                
+                Button(action: {
+                    currentSection = .bank
+                }) {
+                    Text("No")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                        .background(Color.red)
+                        .opacity(disableLoanButtons ? 0.5 : 1)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+                .disabled(disableLoanButtons)
+                
+            }
+        }
+    }
+    
+    @State var percentageChange: Double = 0
+
+    func determineStock(player: PlayerData) {
+        var successRate: Double
+        
+        switch player.intelligence {
+        case 10:
+            successRate = 0.90 // Max Success Rate
+        case 7...9:
+            successRate = 0.8 // High Success Rate
+        case 4...6:
+            successRate = 0.70 // Moderate Success Rate
+        case 1...3:
+            successRate = 0.45 // Low Success Rate
+        default:
+            successRate = 0.0
+        }
+        print(successRate)
+
+        let randomOutcome = Double.random(in: 0...1)
+        
+        if randomOutcome < successRate {
+            percentageChange = Double.random(in: 0.01...0.10) // Random increase of 1% to 10%
+            player.stockBalance *= (1 + percentageChange)
+        } else {
+            // Unsuccessful period: Decrease stock balance by a random percentage
+            percentageChange = -Double.random(in: 0.01...0.10) // Random decrease of 1% to 10% // Random decrease of 1% to 10%
+            player.stockBalance *= (1 + percentageChange)
+        }
+    }
+
+
+    @State private var stockAmount: Double = 0
+
+    func buyStockButtons(player: PlayerData) -> some View {
+        var chosenStock: String
+        var stockMessage: String
+        
+        switch player.intelligence {
+        case 10:
+            chosenStock = "AAPL"
+            stockMessage = "You have decided to invest in Apple! This tech giant will not let you down."
+        case 7...9:
+            chosenStock = "TSLA"
+            stockMessage = "You have decided to invest in Tesla! You have put your faith in the future of EVs."
+        case 4...6:
+            chosenStock = "BTC"
+            stockMessage = "You have decided to invest in Bitcoin! You fully believe in the pioneer of cryptocurrency."
+        case 1...3:
+            chosenStock = "DOGE"
+            stockMessage = "You have decided to invest in DOGE coin! You are willing to risk it all for the meme!"
+        default:
+            chosenStock = "N/A"
+            stockMessage = "No valid stock."
+        }
+        
+        return VStack(spacing: 20) {
+            if player.hasStock {
+                VStack {
+                    VStack {
+                        HStack {
+                            Text(chosenStock)
+                                .font(.custom("AvenirNext-Bold", size: 24))
+                                .foregroundColor(Color.white)
+                            if(percentageChange > 0){
+                                Text("(\(String(format: "%.2f", percentageChange))%)")
+                                    .font(.custom("AvenirNext-Bold", size: 18))
+                                    .foregroundColor(Color.green)
+                            } else {
+                                Text("(\(String(format: "%.2f", percentageChange))%)")
+                                    .font(.custom("AvenirNext-Bold", size: 18))
+                                    .foregroundColor(Color.red)
                             }
-                        },
-                        secondaryButton: .cancel(Text("No"))
-                    )
+                            
+                        }
+                        Text("Investment: $\(Int(player.stockBalance))")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .foregroundColor(Color.white)
+                        
+                        Text("\(stockMessage)")
+                            .font(.custom("AvenirNext-Bold", size: 18))
+                            .foregroundColor(Color.white)
+                            .padding()
+                    }
+                    .frame(minWidth: 350, maxWidth: 350, minHeight: 200, maxHeight: 200)
+                    .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+                    .cornerRadius(10)
+                    
+                    
+                    HStack {
+                        Button(action: {
+                            // Action to navigate back to finances
+                            currentSection = .finances
+                        }) {
+                            Text("Hold")
+                                .font(.custom("AvenirNext-Bold", size: 22))
+                                .foregroundColor(Color.white)
+                                .shadow(radius: 5)
+                                .padding()
+                                .background(Color.red)
+                                .cornerRadius(10)
+                                .shadow(radius: 10)
+                        }
+                        .frame(maxWidth: 100, minHeight: 60, maxHeight: 60)
+                        
+                        Button(action: {
+                            player.playerBalance += player.stockBalance
+                            player.stockBalance = 0
+                            player.hasStock = false
+                            savePlayerBalance(context: viewContext, player: player)
+                        }) {
+                            Text("Sell")
+                                .font(.custom("AvenirNext-Bold", size: 22))
+                                .foregroundColor(Color.white)
+                                .shadow(radius: 5)
+                                .padding()
+                                .background(Color.green)
+                                .cornerRadius(10)
+                                .shadow(radius: 10)
+                        }
+                        .frame(minWidth: 100, minHeight: 60, maxHeight: 60)
+                    }
+                }
+            } else {
+                HStack {
+                    Text("Invest")
+                        .font(.custom("AvenirNext-Bold", size: 28))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 10)
+                }
+                HStack {
+                    Text("Balance: \(Int(player.playerBalance))")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                }
+                .frame(minWidth: 350, maxWidth: 350, minHeight: 70)
+                .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+                .cornerRadius(10)
+                
+                // Amount Selection
+                HStack {
+                    Button(action: {
+                        // Decrease stock amount, only reduce from 100 to 0
+                        if stockAmount == 100 {
+                            stockAmount = 0
+                        } else {
+                            stockAmount /= 10
+                        }
+                    }) {
+                        Text("<")
+                            .font(.custom("AvenirNext-Bold", size: 32))
+                            .shadow(radius: 5)
+                            .padding()
+                            .foregroundColor(stockAmount == 0 ? Color.white.opacity(0.5) : Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(stockAmount == 0)
+                    
+                    Text("$\(Int(stockAmount))")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .padding(.horizontal, 24)  // Adjust padding to ensure centering
+                        .frame(minWidth: 50, alignment: .center)  // Ensure minimum width for centering
+                    
+                    Button(action: {
+                        // Increase stock amount
+                        if stockAmount == 0 {
+                            stockAmount = 100
+                        } else {
+                            stockAmount = min(stockAmount * 10, 1_000_000)
+                        }
+                    }) {
+                        Text(">")
+                            .font(.custom("AvenirNext-Bold", size: 32))
+                            .shadow(radius: 5)
+                            .padding()
+                            .foregroundColor(((stockAmount == 0 ? 100 : stockAmount * 10) > player.playerBalance || stockAmount >= 1_000_000) ? Color.gray.opacity(0.5) : Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .disabled((stockAmount == 0 ? 100 : stockAmount * 10) > player.playerBalance || stockAmount >= 1_000_000)
+                }
+                .frame(minWidth: 350, maxWidth: 350, minHeight: 75)
+                .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+                .cornerRadius(10)
+                .padding(.horizontal)
+
+                // LazyVGrid for Buttons
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+                    // Back Button
+                    Button(action: {
+                        // Action to navigate back to finances
+                        currentSection = .finances
+                        stockAmount = 0
+                    }) {
+                        Text("Back")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .foregroundColor(Color.white)
+                            .shadow(radius: 5)
+                            .padding()
+                            .frame(maxWidth: 150, minHeight: 60, maxHeight: 60)
+                            .background(Color.red)
+                            .cornerRadius(10)
+                            .shadow(radius: 10)
+                    }
+                    
+                    // Buy Stocks Button
+                    Button(action: {
+                        // Action to buy stocks
+                        player.stockBalance += stockAmount
+                        player.playerBalance -= stockAmount
+                        player.hasStock = true
+                        savePlayerBalance(context: viewContext, player: player)
+                    }) {
+                        Text("Invest")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .shadow(radius: 5)
+                            .padding()
+                            .frame(maxWidth: 150, minHeight: 60, maxHeight: 60)
+                            .background((stockAmount == 0 || stockAmount > player.playerBalance) ? Color.cyan.opacity(0.5) : Color.cyan)
+                            .foregroundColor((stockAmount == 0 || stockAmount > player.playerBalance) ? Color.white.opacity(0.5) : Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 10)
+                    }
+                    .disabled(stockAmount == 0 || stockAmount > player.playerBalance)
+                    
                 }
             }
         }
     }
+
+
+
+
 
 
 
@@ -395,8 +742,8 @@ struct GameView: View, Hashable {
                         )
                         .shadow(radius: 10)
                 }
-                .disabled(player.playerBalance < Double(betAmount + 10) || betButtonsDisabled)
-                .opacity(player.playerBalance < Double(betAmount + 10) || betButtonsDisabled ? 0.5 : 1.0)
+                .disabled(player.playerBalance < Double(betAmount + 50) || betButtonsDisabled)
+                .opacity(player.playerBalance < Double(betAmount + 50) || betButtonsDisabled ? 0.5 : 1.0)
 
                 // 100 Button
                 Button(action: { betAmount += 100 }) {
@@ -440,9 +787,6 @@ struct GameView: View, Hashable {
                 
                 
                 Button(action: {
-                    
-                    // Save the player's balance here
-                    savePlayerBalance(context: viewContext, player: player)
                     currentSection = .casino
                 }) {
                     Text("Back")
@@ -500,6 +844,7 @@ struct GameView: View, Hashable {
                     betAmount = 0
                     standDisabled = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 4.0){
+                        savePlayerBalance(context: viewContext, player: player)
                         betButtonsDisabled = false
                         hitDisabled = false
                         backDisabled = false
@@ -522,13 +867,11 @@ struct GameView: View, Hashable {
         }
         .frame(maxHeight: .infinity)
     }
-
-
-
-
-
     
+    ///# =====================================================
     ///# ============= DEFINES CAREER BUTTON SET =============
+    ///# =====================================================
+    
     func careerButtons() -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
         return LazyVGrid(columns: columns, spacing: 20) {
@@ -740,8 +1083,14 @@ struct GameView_Previews: PreviewProvider {
         let newPlayer = PlayerData(context: context)
         newPlayer.playerName = "Jane"
         newPlayer.gender = "Female"
-        newPlayer.playerBalance = 501
+        newPlayer.intelligence = 8
+        newPlayer.playerBalance = 100
         newPlayer.saveDate = Date()
+        newPlayer.hasLoan = false
+        newPlayer.debt = 0
+        newPlayer.hasStock = false
+        newPlayer.stockBalance = 0
+        
         
         return GameView(
             player: newPlayer

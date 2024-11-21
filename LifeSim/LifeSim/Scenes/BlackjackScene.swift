@@ -163,7 +163,6 @@ class BlackjackScene: SKScene, ObservableObject {
     
     // Hit functionality: Ensures ability to add another card to Player deck
     func hit(betAmount: Int, player: PlayerData, shouldUpdate: UnsafeMutablePointer<Bool>) {
-        print("Hit button pressed")
         
         if !initialCardsDealt {
             
@@ -241,7 +240,6 @@ class BlackjackScene: SKScene, ObservableObject {
         card.position = position ?? currentDealerCardPosition
         card.setScale(1.3)
         addChild(card)
-        print("Dealer card added to scene")
         if faceUp && position == nil {
             currentDealerCardPosition.x += (card.size.width / 2) + cardSpacing
         }
