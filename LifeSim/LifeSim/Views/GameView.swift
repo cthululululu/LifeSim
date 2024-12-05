@@ -1060,8 +1060,10 @@ struct GameView: View, Hashable {
                     .shadow(radius: 5)
             }
 
-            Button(action: { print("City Action 2") }) {
-                Text("City Action 2")
+            NavigationLink {
+                DoctorsView(player: player)
+            } label: {
+                Text("Doctors")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)

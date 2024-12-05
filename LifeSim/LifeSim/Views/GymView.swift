@@ -11,15 +11,6 @@ struct GymView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    @FetchRequest(
-        // Fetches PlayerData entity
-        entity: PlayerData.entity(),
-        // Sorts instances of PlayerData by save date
-        sortDescriptors: [NSSortDescriptor(keyPath: \PlayerData.saveDate, ascending: false)],
-        animation: .default)
-    // Fetched Results stored in variable `players`
-    private var players: FetchedResults<PlayerData>
-    
     var body: some View {
         VStack {
             Text("Welcome to the Gym!")
@@ -28,12 +19,7 @@ struct GymView: View {
             
             Text("Get fit and improve your health!")
             Button(action: {
-               /* guard let player = players.first else {
-                    alertTitle = "No player found"
-                    alertMessage = "Please Create a player before going to the Gym"
-                    showAlert = true
-                    return
-                }*/
+               
                 guard player.playerBalance >= 30 else {
                     alertTitle = "Insufficient Balance"
                     alertMessage = "You need more money to go to the gym"
