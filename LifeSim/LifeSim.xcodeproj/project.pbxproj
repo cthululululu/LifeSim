@@ -11,6 +11,7 @@
 		96902AFD2D00C4540054BA4D /* GymView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96902AF92D00C4540054BA4D /* GymView.swift */; };
 		96902AFF2D00C4540054BA4D /* VacationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96902AFB2D00C4540054BA4D /* VacationView.swift */; };
 		96902B002D00C4540054BA4D /* DoctorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96902AFC2D00C4540054BA4D /* DoctorsView.swift */; };
+		96902B022D03AA660054BA4D /* AssetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96902B012D03AA660054BA4D /* AssetView.swift */; };
 		AF93DB6F2CE41D1E00B9475C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF93DAC62CE3FECA00B9475C /* Assets.xcassets */; };
 		DB7860612CED582500B2842B /* BlackjackScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7860602CED582500B2842B /* BlackjackScene.swift */; };
 		DB7860642CED597B00B2842B /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7860632CED597B00B2842B /* GameScene.swift */; };
@@ -46,6 +47,7 @@
 		96902AF92D00C4540054BA4D /* GymView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GymView.swift; sourceTree = "<group>"; };
 		96902AFB2D00C4540054BA4D /* VacationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VacationView.swift; sourceTree = "<group>"; };
 		96902AFC2D00C4540054BA4D /* DoctorsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoctorsView.swift; sourceTree = "<group>"; };
+		96902B012D03AA660054BA4D /* AssetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetView.swift; sourceTree = "<group>"; };
 		AF93DAC52CE3FEC800B9475C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AF93DAC62CE3FECA00B9475C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DB7860602CED582500B2842B /* BlackjackScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackjackScene.swift; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 		AF93DAC72CE3FEE200B9475C /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				96902B012D03AA660054BA4D /* AssetView.swift */,
 				AF93DAC62CE3FECA00B9475C /* Assets.xcassets */,
 			);
 			path = Assets;
@@ -327,6 +330,7 @@
 				DBE6E2862CB1C93A00FED61B /* HomeView.swift in Sources */,
 				DB7860612CED582500B2842B /* BlackjackScene.swift in Sources */,
 				96902AFF2D00C4540054BA4D /* VacationView.swift in Sources */,
+				96902B022D03AA660054BA4D /* AssetView.swift in Sources */,
 				DBA3E6642CABA04C0006036A /* LifeSimApp.swift in Sources */,
 				DB9810C22CB1FA1D007950A0 /* GameView.swift in Sources */,
 				DB9810C02CB1F9E5007950A0 /* CreateCharacterView.swift in Sources */,
