@@ -1068,6 +1068,19 @@ struct GameView: View, Hashable {
                     .cornerRadius(10)
                     .shadow(radius: 5)
             }
+            NavigationLink {
+                VacationView(player: player)
+            } label: {
+                Text("Vacation")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            }
         }
     }
 }///# ============= END OF BUTTON NAVIGATION =============
