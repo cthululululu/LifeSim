@@ -1,6 +1,5 @@
 import SwiftUI
 import CoreData
-
 struct HomeView: View {
     
     // Fetches CoreData context from environment
@@ -18,90 +17,132 @@ struct HomeView: View {
     @State private var message: String = ""
     @State private var overwriteAlert = false
     @State private var noSaveGameAlert = false
+    @State private var animateGradient: Bool = false
     @State private var path = NavigationPath()
 
     var body: some View {
         NavigationStack(path: $path) {
-            VStack {
+            ZStack {
                 
-                // TESTING purposes only:
-                // This text box displays saved game data loaded when app is initialized
-                Text(message)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .border(Color.gray, width: 1)
-                
-                // New Game Button
-                Button(action: checkForExistingSave) {
-                    Text("New Game")
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding()
-                
-                // Alerts player that they are about to overwrite a saved game
-                .alert(isPresented: $overwriteAlert) {
-                    Alert(
-                        title: Text("Overwrite Save"),
-                        message: Text("Creating New Game will Overwrite your Previous Save. Do you wish to Continue?"),
-                        primaryButton: .destructive(Text("Yes")) {
-                            showCharacterCreationView()
-                            message.append("--[NEWGAME]--")
-                        },
-                        secondaryButton: .cancel()
-                    )
-                }
-                
-                // Load Game Button
-                Button(action: loadGame) {
-                    Text("Load Game")
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding()
-                .onTapGesture { // User presses Load Game
+                // Linear Gradient Background Animation
+                LinearGradient(colors: [Color(red: 18/255, green: 32/255, blue: 47/255), Color.black], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .hueRotation(.degrees(animateGradient ? 45 : 0))
+                    .edgesIgnoringSafeArea(.all)
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                            animateGradient.toggle()
+                        }
+                    }
+
+                VStack {
                     
-                    // If there is no game save to load
-                    if players.isEmpty {
-                        noSaveGameAlert = true // Display Alert
-                    } else { // Game save found
-                        loadGame()
+                    // Replace the Test Text Box with LifeSim
+                    Text("LifeSim")
+                        .font(.custom("AvenirNext-Bold", size: 48))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+
+                    // Add the image under the LifeSim text
+                    Image("earth_image")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 350)
+                        .padding()
+                        .opacity(0.7) // Adjust the opacity value as needed
+                        .shadow(color: Color.white, radius: 10, x: 0, y: 0) // Add white shadow
+
+                    HStack {
+                        // New Game Button
+                        Button(action: checkForExistingSave) {
+                            Text("New Game")
+                                .font(.custom("AvenirNext-Bold", size: 16))
+                                .foregroundColor(Color.white)
+                                .shadow(radius: 5)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+
+                        // Load Game Button
+                        Button(action: loadGame) {
+                            Text("Load Game")
+                                .font(.custom("AvenirNext-Bold", size: 16))
+                                .foregroundColor(Color.white)
+                                .shadow(radius: 5)
+                                .padding()
+                                .background(Color.green)
+                                .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            // If there is no game save to load
+                            if players.isEmpty {
+                                noSaveGameAlert = true // No Saved Game Alert
+                            } else { // Game save found
+                                loadGame()
+                            }
+                        }
+                        // Alerts player that they do not have a saved game
+                        .alert(isPresented: $noSaveGameAlert) {
+                            Alert(
+                                title: Text("No Saved Games"),
+                                message: Text("Choose the New Game Button."),
+                                dismissButton: .default(Text("Ok"))
+                            )
+                        }
+                    }
+                    .padding()
+                    
+                    // Alerts player that they are about to Overwrite a saved game
+                    .alert(isPresented: $overwriteAlert) {
+                        Alert(
+                            title: Text("Overwrite Save"),
+                            message: Text("Creating New Game will Overwrite your Previous Save. Do you wish to Continue?"),
+                            primaryButton: .destructive(Text("Yes")) {
+                                showCharacterCreationView()
+                                message.append("--[NEWGAME]--")
+                            },
+                            secondaryButton: .cancel()
+                        )
                     }
                 }
-                // Alerts player that they do not have a saved game
-                .alert(isPresented: $noSaveGameAlert) {
-                    Alert(
-                        title: Text("No Saved Games"),
-                        message: Text("Choose the New Game Button."),
-                        dismissButton: .default(Text("Ok"))
-                    )
+                .padding()
+                .onAppear {
+                    // TEST purposes only:
+                    // Displays player's saved game data to test text box
+                    if let firstPlayer = players.first {
+                        // Formats date and stores formatted date into formattedDate
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateStyle = .medium
+                        dateFormatter.timeStyle = .short
+                        let formattedDate = dateFormatter.string(from: firstPlayer.saveDate ?? Date())
+                        // Displays current Saved Game
+                        message.append("Saved Game Data: \(firstPlayer.playerName ?? "") on \(formattedDate)")
+                    } else {
+                        // Displays that there are no saved games
+                        message.append("No saved game data found")
+                    }
+                }
+
+                // Navigation link to LeaderboardView
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        NavigationLink(destination: LeaderboardView()) {
+                            Text("🏆")
+                                .font(.largeTitle)
+                                .padding()
+                                .background(Color.white.opacity(0.5))
+                                .clipShape(Circle())
+                                .shadow(radius: 5)
+                        }
+                        .padding()
+                    }
                 }
             }
-            .padding()
-            .onAppear {
-                
-                //TEST purposes only:
-                // Displays player's saved game data to test text box
-                if let firstPlayer = players.first {
-                    
-                    // Formats date and stores formatted date into formattedDate
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateStyle = .medium
-                    dateFormatter.timeStyle = .short
-                    let formattedDate = dateFormatter.string(from: firstPlayer.saveDate ?? Date())
-                    
-                    // Displays current Saved Game
-                    message.append("Saved Game Data: \(firstPlayer.playerName ?? "") on \(formattedDate)")
-                } else {
-                    // Displays that there are no saved games
-                    message.append("No saved game data found")
-                }
-            }
-            
             // Defines destination view when navigating to CreateCharacterView
             .navigationDestination(for: CreateCharacterView.self) { destination in
                 destination
@@ -112,6 +153,11 @@ struct HomeView: View {
             }
         }
     }
+
+
+
+
+ // End of Body View
 
     // Function checks if game save exists
     func checkForExistingSave() {
@@ -162,7 +208,6 @@ struct HomeView: View {
         newPlayer.hasStock = false
         newPlayer.stockBalance = 0
         
-        
         // Sets Player's time attributes
         newPlayer.currentInterval = 0
         newPlayer.timeUsed = 0
@@ -175,8 +220,6 @@ struct HomeView: View {
             // Saves newPlayer to CoreData context
             try viewContext.save()
             
-            
-            
             // Navigates player to GameView with initialized player data
             path.append(GameView(player: newPlayer))
             
@@ -185,9 +228,6 @@ struct HomeView: View {
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
-
-
-    
     /** Have not been able to get this preview to work properly. Use simulator to test.
      
     struct HomeView_Previews: PreviewProvider {
