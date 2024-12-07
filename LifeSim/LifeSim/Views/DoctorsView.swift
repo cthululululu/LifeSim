@@ -18,6 +18,10 @@ struct DoctorsView: View {
     
     var body: some View {
         VStack {
+            Image(.doctorOffice)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300, height: 300)
             Text("Welcome to the Doctors' Office!")
                 .font(.title)
                 .padding()
