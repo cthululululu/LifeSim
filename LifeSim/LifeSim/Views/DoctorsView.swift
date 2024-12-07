@@ -12,6 +12,7 @@ struct DoctorsView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     @ObservedObject var player: PlayerData
+    let image = Image("doctorOffice")
     
     @Environment(\.managedObjectContext) private var viewContext
     
