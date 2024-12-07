@@ -14,6 +14,7 @@ struct GameView: View, Hashable {
     @ObservedObject var player: PlayerData
     // Initializes current game section to being in the main section
     @State private var currentSection: GameSection = .main
+    @State private var showPlayerData = false
     
     @StateObject private var blackjackScene = BlackjackScene(size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
     
@@ -66,6 +67,9 @@ struct GameView: View, Hashable {
             }
             .frame(height: UIScreen.main.bounds.height * 0.45)
         }
+        .sheet(isPresented: $showPlayerData, content: {
+            AssetView(player: player)
+        })
         // Disables navigation back to HomeView
         .navigationBarBackButtonHidden(true)
     }
@@ -1006,19 +1010,10 @@ struct GameView: View, Hashable {
                     .cornerRadius(10)
                     .shadow(radius: 5)
             }
-            Button(action: { print("Assets Action 1") }) {
-                Text("Assets Action 1")
-                    .font(.custom("AvenirNext-Bold", size: 22))
-                    .foregroundColor(Color.white)
-                    .shadow(radius: 5)
-                    .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
-                    .background(Color.cyan)
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-            }
-            Button(action: { print("Assets Action 2") }) {
-                Text("Assets Action 2")
+            Button(action: {
+             showPlayerData = true
+            }) {
+                Text("Player Data")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)
@@ -1048,7 +1043,7 @@ struct GameView: View, Hashable {
             
             NavigationLink {
                 GymView(player: player)
-            } label: {
+            } label: { 
                 Text("Gym")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
@@ -1064,6 +1059,19 @@ struct GameView: View, Hashable {
                 DoctorsView(player: player)
             } label: {
                 Text("Doctors")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            }
+            NavigationLink {
+                VacationView(player: player)
+            } label: {
+                Text("Vacation")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)

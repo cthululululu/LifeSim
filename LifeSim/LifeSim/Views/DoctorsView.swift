@@ -54,7 +54,7 @@ struct DoctorsView: View {
                 }
                 
             }, label: {
-                Text("Go to Gym - $30")
+                Text("Go to Doctor")
             })
         }
         
