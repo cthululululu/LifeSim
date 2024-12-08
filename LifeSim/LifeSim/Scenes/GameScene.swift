@@ -2,7 +2,7 @@ import SpriteKit
 
 
 // contains sprite animations and logic for choosing character
-class GameScene: SKScene {
+class GameScene: SKScene, ObservableObject {
     var gender: String
     var playerName: String
     var nameLabel: SKLabelNode!
@@ -33,12 +33,57 @@ class GameScene: SKScene {
     var playerIdleTexturesGirl: [SKTexture] {
         return (2...16).map { playerAtlas.textureNamed("Girl (\($0))") }
     }
+    //Texture for boy sprite death
+    var playerDeathTextureGirl: [SKTexture] {
+        return (1...30).map { playerAtlas.textureNamed("girlDead (\($0))")}
+    }
+    //Texture for girl sprite death
+    var playerDeathTextureBoy: [SKTexture] {
+        return (1...15).map { playerAtlas.textureNamed("Dead (\($0))")}
+    }
+    
+    //Function for calling death animation
+    func spriteDeath() {
+        let deathTextures: [SKTexture]
+        let sprite: SKSpriteNode
+        
+        if gender == "Male" {
+            deathTextures = playerDeathTextureBoy
+            sprite = playerBoy
+        } else {
+            deathTextures = playerDeathTextureGirl
+            sprite = playerGirl
+        }
+        
+        guard !deathTextures.isEmpty else {
+            print ("Error with texture")
+            return
+        }
+        let deathAnimation = SKAction.animate(with: deathTextures, timePerFrame: 0.05)
+        
+        let setLastFrame = SKAction.run {
+            sprite.texture = deathTextures.last
+        }
+        
+        let sequence = SKAction.sequence([deathAnimation, setLastFrame])
+        
+        sprite.run(sequence, withKey: "playerDeathAnimation")
+        
+    }
+    
+    //func to stop current animation, this is to avoid overlaps
+    func stopCurrentAnimation() {
+        playerBoy.removeAllActions()
+        playerGirl.removeAllActions()
+    }
+    
     
     func configureCharacter(name: String, gender:String) {
         self.gender = gender
         self.playerName = name
         setUpPlayers()
     }
+    
     // Initial player texture and position
     func setUpPlayers() {
         // Setting up Boy Character Sprite
