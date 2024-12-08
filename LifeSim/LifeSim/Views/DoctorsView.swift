@@ -1,10 +1,3 @@
-//
-//  DoctorsView.swift
-//  SamsTownAssetsCopy
-//
-//  Created by Samuel Jolaoso on 11/14/24.
-//
-
 import SwiftUI
 
 struct DoctorsView: View {
@@ -60,6 +53,15 @@ struct DoctorsView: View {
                 
             }, label: {
                 Text("Go to Doctor")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding()
             })
         }
         

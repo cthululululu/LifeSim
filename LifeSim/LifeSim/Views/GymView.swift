@@ -8,16 +8,22 @@ struct GymView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     @ObservedObject var player: PlayerData
+    let image = Image("gym")
     
     @Environment(\.managedObjectContext) private var viewContext
     
     var body: some View {
         VStack {
+            Image(.gym)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300, height: 300)
             Text("Welcome to the Gym!")
                 .font(.title)
                 .padding()
             
             Text("Get fit and improve your health!")
+            Text("This deacreases 10 Stress")
             Button(action: {
                
                 guard player.playerBalance >= 30 else {
@@ -44,6 +50,15 @@ struct GymView: View {
                 
             }, label: {
                 Text("Go to Gym - $30")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding()
             })
         }
         .alert(alertTitle, isPresented: $showAlert, actions: {

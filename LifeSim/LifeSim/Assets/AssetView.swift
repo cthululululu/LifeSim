@@ -11,8 +11,7 @@ struct AssetView: View {
     var body: some View {
         VStack {
             ZStack {
-                Color.red
-                    .ignoresSafeArea()
+                Color.red                    .ignoresSafeArea()
                 Text("Player Data")
                     .font(.custom("AvenirNext-Bold", size: 42))
                     .foregroundColor(Color.white)
@@ -94,9 +93,10 @@ struct AssetView: View {
             
                 .padding()
             }
-            .frame(height: UIScreen.main.bounds.height * 0.45)
-            Spacer()
+            .frame(height: UIScreen.main.bounds.height * 0.35)
+            
         }
+        
         .navigationTitle("Player Data")
     }
 }
