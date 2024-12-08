@@ -42,6 +42,50 @@ class GameScene: SKScene, ObservableObject {
         return (1...15).map { playerAtlas.textureNamed("Dead (\($0))")}
     }
     
+    //Texture for happy girl sprite
+    var playerHappyGirl: [SKTexture] {
+        return (2...15).map { playerAtlas.textureNamed("girlHappy (\($0))")}
+    }
+    //Texture for sad girl sprite
+    var playerSadGirl: [SKTexture] {
+        return (2...15).map { playerAtlas.textureNamed("girlSad (\($0))")}
+    }
+    //Texture for happy boy sprite
+    var playerHappyBoy: [SKTexture] {
+        return (1...15).map { playerAtlas.textureNamed("boyHappy (\($0))")}
+    }
+    //Texture for sad boy sprite
+    var playerSadBoy: [SKTexture] {
+        return (1...15).map { playerAtlas.textureNamed("boySad (\($0))")}
+    }
+    
+    //Function for calling happy sprite animation
+    func happyAnimation() {
+        let happyTextures: SKAction
+        
+        if gender == "Male" {
+            happyTextures = SKAction.animate(with: playerHappyBoy, timePerFrame: 0.05)
+            playerBoy.run(happyTextures, withKey: "happyAnimation")
+        } else {
+            happyTextures = SKAction.animate(with: playerHappyGirl, timePerFrame: 0.05)
+            playerGirl.run(happyTextures, withKey: "happyAnimation")
+        }
+        
+    }
+    
+    //Function for calling sad sprite animation
+    func sadAnimation() {
+        let sadTextures: SKAction
+        if gender == "Male" {
+            sadTextures = SKAction.animate(with: playerSadBoy, timePerFrame: 0.05)
+            playerBoy.run(sadTextures, withKey: "sadAnimation")
+        }
+        else {
+            sadTextures = SKAction.animate(with: playerSadGirl, timePerFrame: 0.05)
+            playerGirl.run(sadTextures, withKey: "sadAnimation")
+        }
+    }
+    
     //Function for calling death animation
     func spriteDeath() {
         let deathTextures: [SKTexture]
