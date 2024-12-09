@@ -234,8 +234,6 @@ struct HomeView: View {
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
-    /** Have not been able to get this preview to work properly. Use simulator to test.
-     
     struct HomeView_Previews: PreviewProvider {
         static var previews: some View {
             let context = PersistenceController.preview.container.viewContext
@@ -249,5 +247,5 @@ struct HomeView: View {
                 .environment(\.managedObjectContext, context)
         }
     }
-    */
+    
 }
