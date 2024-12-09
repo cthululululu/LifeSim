@@ -4,7 +4,7 @@ Architecture: MVVM
 
 Minimum Deployment: iOS 17.5
 
-Purpose: Entertainment:
+Purpose: Entertainment
 
 Instruction: 
 
