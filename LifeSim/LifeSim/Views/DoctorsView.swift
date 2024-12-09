@@ -41,6 +41,7 @@ struct DoctorsView: View {
                     return
                 }
                 player.playerBalance = player.playerBalance - 30
+                player.time -= 5
                 do {
                     try viewContext.save()
                     alertTitle = "Doctors Advice"

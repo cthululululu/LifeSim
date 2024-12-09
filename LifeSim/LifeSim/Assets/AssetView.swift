@@ -2,11 +2,15 @@ import SwiftUI
 import CoreData
 import SpriteKit
 
+
+
+
 struct AssetView: View {
     @ObservedObject var player: PlayerData
     
     // Accessing the managed object context from the environment
     @Environment(\.managedObjectContext) private var viewContext
+    
 
     var body: some View {
         VStack {
@@ -63,7 +67,7 @@ struct AssetView: View {
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white)
                     
-                    Text("Stock: \(player.hasStock)")
+                    Text("Has Stock: \(player.hasStock)")
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white)
                     
@@ -83,8 +87,7 @@ struct AssetView: View {
                     
                     
                     
-                    Text("Time Used: \(player.timeUsed)")
-                    .font(.system(size: 20, weight: .bold))
+                    Text("Year: \(String(format: "%.0f", Double(2003 + player.playerAge) as Double))")                    .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.white)
                     
                 Spacer()
@@ -108,6 +111,7 @@ struct AssetView: View {
             // Creating a sample PlayerData instance for preview purposes
             let newPlayer = PlayerData(context: context)
             newPlayer.playerName = "Jane"
+            newPlayer.playerAge = 21
             newPlayer.health = 100
             newPlayer.gender = "Female"
             newPlayer.intelligence = 8

@@ -49,6 +49,7 @@ struct VacationView: View {
                         
                         player.stress = player.stress - 50 >= 0 ? player.stress - 50 : 0
                         player.playerBalance = player.playerBalance - 150
+                        player.time -= 15
                         do {
                             try viewContext.save()
                             guard let vacationResult = vacationResult.randomElement() else {return}

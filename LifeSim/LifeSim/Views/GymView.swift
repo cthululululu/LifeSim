@@ -35,6 +35,7 @@ struct GymView: View {
                 
                 player.stress = player.stress - 10 >= 0 ? player.stress - 10 : 0
                 player.playerBalance = player.playerBalance - 30
+                player.time -= 5
                 do {
                     try viewContext.save()
                     guard let gymResult = gymResult.randomElement() else {return}
