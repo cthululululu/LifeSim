@@ -45,6 +45,11 @@ Education:​
 Assets​:
 - Player can view their data through the assets​
 ​
+Death:
+- Death Sprite is played and User will be prompted to start a new game which will send them to the Home Screen.
+
+
+
 City​
 - Player can go to the Gym by paying a small fee and it slightly decreases the player's stress​
 - Player can visit a Doctor and view the status of their health.​
