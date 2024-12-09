@@ -207,10 +207,16 @@ struct HomeView: View {
         newPlayer.hasLoan = false
         newPlayer.hasStock = false
         newPlayer.stockBalance = 0
-        
-        // Sets Player's time attributes
-        newPlayer.currentInterval = 0
-        newPlayer.timeUsed = 0
+        newPlayer.isGraduate = false
+        newPlayer.isEnrolled = false
+        newPlayer.time = 0
+        newPlayer.collegeDebt = 0
+        newPlayer.collegeMajor = ""
+        newPlayer.collegeYear = 1
+        newPlayer.isTestTime = false
+        newPlayer.testTaken = false
+        newPlayer.isEmployed = false
+
         
         // Prints New Player Attributes to Console
         print("Player Name: \(playerName), Save Date: \(newPlayer.saveDate ?? Date()), Gender: \(gender ?? "Not selected"), Intelligence: \(intelligence), Charisma: \(charisma), Luck: \(luck), Player Balance: \(newPlayer.playerBalance), Health: \(newPlayer.health), Stress: \(newPlayer.stress), Player Age: \(newPlayer.playerAge)")
