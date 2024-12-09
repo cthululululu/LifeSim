@@ -1,10 +1,3 @@
-//
-//  VacationView.swift
-//  SamsTownAssetsCopy
-//
-//  Created by Samuel Jolaoso on 12/2/24.
-//
-
 import SwiftUI
 import CoreData
 
@@ -14,6 +7,7 @@ struct VacationView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     @ObservedObject var player: PlayerData
+    let image = Image("vacation")
     
     @Environment(\.managedObjectContext) private var viewContext
     var body: some View {
@@ -21,7 +15,7 @@ struct VacationView: View {
             ZStack {
                 Color.red
                     .ignoresSafeArea()
-                Text("Player Data")
+                Text("Vacation")
                     .font(.custom("AvenirNext-Bold", size: 42))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)
@@ -33,7 +27,14 @@ struct VacationView: View {
                 .font(.title)
                 .padding()
             
-            Text("Lets go on Vacation! Make sure you have money!")
+            Text("Lets go on Vacation! This will relieve a lot of strees but make sure you have money!")
+                .multilineTextAlignment(.center)
+                .padding()
+            Spacer()
+            Image(.vacation)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300, height: 300)
             Spacer()
             ZStack {
                 Color.blue.ignoresSafeArea()
@@ -60,7 +61,7 @@ struct VacationView: View {
                             
                         }      
                     }, label: {
-                        Text("Vacation")
+                        Text("Vacation - $150")
                             .font(.custom("AvenirNext-Bold", size: 22))
                             .foregroundColor(Color.white)
                             .shadow(radius: 5)
@@ -71,14 +72,15 @@ struct VacationView: View {
                             .shadow(radius: 5)
                     })
                     
-                    Spacer()
+                    //Spacer()
                         
                 }
                 .padding()
             }
-            .frame(height: UIScreen.main.bounds.height * 0.45)
+            .frame(height: UIScreen.main.bounds.height * 0.09)
             
         }
+        
         .alert(alertTitle, isPresented: $showAlert, actions: {
             Button(action: {
                 
@@ -88,7 +90,7 @@ struct VacationView: View {
         }, message: {
             Text(alertMessage)
         })
-        .navigationTitle("Gym")    }
+        }
 }
 
 #Preview {

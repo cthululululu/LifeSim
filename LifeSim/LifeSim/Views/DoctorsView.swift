@@ -1,10 +1,3 @@
-//
-//  DoctorsView.swift
-//  SamsTownAssetsCopy
-//
-//  Created by Samuel Jolaoso on 11/14/24.
-//
-
 import SwiftUI
 
 struct DoctorsView: View {
@@ -12,11 +5,16 @@ struct DoctorsView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     @ObservedObject var player: PlayerData
+    let image = Image("doctorOffice")
     
     @Environment(\.managedObjectContext) private var viewContext
     
     var body: some View {
         VStack {
+            Image(.doctorOffice)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 300, height: 300)
             Text("Welcome to the Doctors' Office!")
                 .font(.title)
                 .padding()
@@ -55,6 +53,15 @@ struct DoctorsView: View {
                 
             }, label: {
                 Text("Go to Doctor")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .padding()
             })
         }
         

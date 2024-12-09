@@ -11,8 +11,7 @@ struct AssetView: View {
     var body: some View {
         VStack {
             ZStack {
-                Color.red
-                    .ignoresSafeArea()
+                Color.red                    .ignoresSafeArea()
                 Text("Player Data")
                     .font(.custom("AvenirNext-Bold", size: 42))
                     .foregroundColor(Color.white)
@@ -35,18 +34,69 @@ struct AssetView: View {
                         
                         Spacer()
                     }
+                    
+                    Text("Health: \(player.health)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Age: \(player.playerAge)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
                     Text("Balance: \(player.playerBalance)")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
                     
-                    Spacer()
-                        
+                    Text("Stress: \(player.stress)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Charisma: \(player.charisma)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Debt: \(player.debt)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Loan Intrest: \(player.loanInterest)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Stock: \(player.hasStock)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Stock Balance: \(player.stockBalance)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    Text("Inteligence: \(player.intelligence)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    
+                    
+                    Text("Luck: \(player.luck)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                    
+                    
+                    Text("Time Used: \(player.timeUsed)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white)
+                    
+                Spacer()
+
                 }
+            
                 .padding()
             }
-            .frame(height: UIScreen.main.bounds.height * 0.45)
-            Spacer()
+            .frame(height: UIScreen.main.bounds.height * 0.35)
+            
         }
+        
         .navigationTitle("Player Data")
     }
 }
@@ -58,6 +108,7 @@ struct AssetView: View {
             // Creating a sample PlayerData instance for preview purposes
             let newPlayer = PlayerData(context: context)
             newPlayer.playerName = "Jane"
+            newPlayer.health = 100
             newPlayer.gender = "Female"
             newPlayer.intelligence = 8
             newPlayer.playerBalance = 100
