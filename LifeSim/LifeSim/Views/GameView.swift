@@ -5,19 +5,18 @@ import Combine
 
 // Enumeration that defines each section of buttons
 enum GameSection {
-    case main, finances, job, relationships, education, assets, city, casino, blackjack, bank, loans, buy_stocks
+    case main, finances, job, relationships, education, assets, city, casino, blackjack, bank, loans, buy_stocks, entrance_exam, major, pay_tuition, final_exam, side_jobs, game_over
 }
 
 struct GameView: View, Hashable {
     
     // Observes changes to PlayerData instance
     @ObservedObject var player: PlayerData
+    
     // Initializes current game section to being in the main section
     @State private var currentSection: GameSection = .main
     @State private var showPlayerData = false
-    
     @StateObject private var blackjackScene = BlackjackScene(size: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-    
     @State private var betAmount: Int = 0
     @State private var loanMessage: String = ""
 
@@ -60,9 +59,9 @@ struct GameView: View, Hashable {
                 Color.blue
                 // Content Goes Here
                 if currentSection == .main {
-                    mainButtons()
+                    mainButtons(player: player, currentSection: $currentSection)
                 } else {
-                    navigationButtons()
+                    navigationButtons(currentSection: $currentSection, player: player)
                 }
             }
             .frame(height: UIScreen.main.bounds.height * 0.45)
@@ -73,10 +72,6 @@ struct GameView: View, Hashable {
         // Disables navigation back to HomeView
         .navigationBarBackButtonHidden(true)
     }
-    
-    
-    
-    
     
     
     ///# ============= PROTOCOL CONFORMING =============
@@ -97,9 +92,65 @@ struct GameView: View, Hashable {
             let players = try context.fetch(fetchRequest)
             if let currentPlayer = players.first {
                 
+                if(player.health <= 0){
+                    currentSection = .game_over
+                }
+                
+                // Checks if a Year has Passed of In Game Time
+                if(player.time >= 100){
+                    
+                    // If player is in College and has not taken Finals
+                    if(player.isEnrolled && !player.testTaken){
+                        player.isTestTime = true
+                        print("\nFinals Time!")
+                        currentSection = .main
+                        if(player.stockBalance > 0){
+                            determineStock(player: player)
+                        }
+                        
+                        
+                    //  If player is in full time job and has not taken Raise test
+                    } else if(player.isEmployed && !player.testTaken){
+                        player.isTestTime = true
+                        print("\nRaise Event Time!")
+                        currentSection = .main
+                        if(player.stockBalance > 0){
+                            determineStock(player: player)
+                        }
+                        
+                        
+                    // Player is NOT Employed AND is NOT Enrolled in College
+                    } else if(!player.isEmployed && !player.isEnrolled || player.isEnrolled && player.testTaken || player.isEmployed && player.testTaken){
+                        
+                        player.isTestTime = false
+                        player.playerAge += 1;
+                        // Update Health
+                        // Update Stock
+                        if(player.stockBalance > 0){
+                            determineStock(player: player)
+                        }
+                        // Resets the Year
+                        player.time -= 100;
+                        calculateHealthDecrease()
+                    }
+                }
+                
+                
                 currentPlayer.playerBalance = player.playerBalance
                 currentPlayer.stockBalance = player.stockBalance
                 currentPlayer.hasStock = player.hasStock
+                currentPlayer.isEnrolled = player.isEnrolled
+                currentPlayer.isGraduate = player.isGraduate
+                currentPlayer.collegeMajor = player.collegeMajor
+                currentPlayer.stress = player.stress
+                currentPlayer.health = player.health
+                currentPlayer.time = player.time
+                currentPlayer.collegeDebt = player.collegeDebt
+                currentPlayer.testTaken = player.testTaken
+                currentPlayer.playerAge = player.playerAge
+                currentPlayer.isTestTime = player.isTestTime
+                currentPlayer.collegeYear = player.collegeYear
+                
                 
                 // Save the context
                 try context.save()
@@ -107,7 +158,19 @@ struct GameView: View, Hashable {
                 print("Player stock balance saved: \(player.stockBalance)")
                 print("Player hasStock saved: \(player.hasStock)")
                 print("Player debt balance saved: \(player.debt)")
-                
+                print("Player isGraduate saved: \(player.isGraduate)")
+                print("Player isEnrolled saved: \(player.isEnrolled)")
+                print("Player Major saved: \(String(describing: player.collegeMajor))")
+                print("Player Stress saved: \(player.stress)")
+                print("Player Health saved: \(player.health)")
+                print("Player Time saved: \(player.time)")
+                print("Player College Debt saved: \(player.collegeDebt)")
+                print("Player Age saved: \(player.playerAge)")
+                print("Player testTaken saved: \(player.testTaken)")
+                print("Player isTestTime saved: \(player.isTestTime)")
+                print("Player College Year saved: \(player.collegeYear)")
+
+
                 
             } else {
                 print("Player not found in Core Data")
@@ -122,58 +185,94 @@ struct GameView: View, Hashable {
 
     
     ///# ============= DEFINES BUTTON NAVIGATION =============
-    func navigationButtons() -> some View {
+    func navigationButtons(currentSection: Binding<GameSection>, player: PlayerData) -> some View {
+        
         VStack {
-            if currentSection == .finances {
+            
+            if currentSection.wrappedValue == .finances {
                 financeButtons()
-            } else if currentSection == .job {
+            } else if currentSection.wrappedValue  == .job {
                 careerButtons()
-            } else if currentSection == .relationships {
+            } else if currentSection.wrappedValue  == .relationships {
                 relationshipsButtons()
-            } else if currentSection == .education {
-                educationButtons()
-            } else if currentSection == .assets {
+            } else if currentSection.wrappedValue  == .education {
+                educationButtons(player: player)
+            } else if currentSection.wrappedValue  == .assets {
                 assetsButtons()
-            } else if currentSection == .city {
+            } else if currentSection.wrappedValue  == .city {
                 cityButtons()
-            } else if currentSection == .casino {
+            } else if currentSection.wrappedValue  == .casino {
                 casinoButtons()
-            } else if currentSection == .blackjack {
+            } else if currentSection.wrappedValue  == .blackjack {
                 blackjackButtons()
-            } else if currentSection == .bank {
+            } else if currentSection.wrappedValue  == .bank {
                 bankButtons(player: player)
-            } else if currentSection == .loans {
+            } else if currentSection.wrappedValue  == .loans {
                 loanButtons(player: player)
-            } else if currentSection == .buy_stocks {
+            } else if currentSection.wrappedValue  == .buy_stocks {
                 buyStockButtons(player: player)
+            } else if currentSection.wrappedValue  == .entrance_exam {
+                entranceExamButtons(player: player)
+            } else if currentSection.wrappedValue  == .major {
+                majorSelectionView(player: player)
+            } else if currentSection.wrappedValue  == .pay_tuition {
+                payTuitionSection(player: player)
+            } else if currentSection.wrappedValue  == .final_exam {
+                FinalExamView(currentSection: currentSection, player: player)
+            } else if currentSection.wrappedValue == .side_jobs {
+                sideJobSection()
+            } else if currentSection.wrappedValue == .game_over {
+                deathSection()
             }
+                
         }
     }
+    
     ///# ============= DEFINES MAIN BUTTON SET =============
-    func mainButtons() -> some View {
+    func mainButtons(player: PlayerData, currentSection: Binding<GameSection>) -> some View {
         let columns = [
             GridItem(.flexible()),
             GridItem(.flexible())
         ]
-        
+
         return LazyVGrid(columns: columns, spacing: 20) {
             ForEach(["Career", "Finances", "Relationships", "Education", "Assets", "City"], id: \.self) { title in
+                // Determine if the button should be disabled based on the conditions
+                let isDisabled: Bool = {
+                    if title == "Relationships" {
+                        return true
+                    } else if player.isTestTime && player.isEnrolled {
+                        return title == "Finances" || title == "Career" || title == "Assets" || title == "City"
+                    } else if player.isTestTime && player.isEmployed {
+                        return title == "Finances" || title == "Education" || title == "City"
+                    } else {
+                        return false
+                    }
+                }()
+
                 Button(action: {
-                    switch title {
-                    case "Career":
-                        currentSection = .job
-                    case "Finances":
-                        currentSection = .finances
-                    case "Relationships":
-                        currentSection = .relationships
-                    case "Education":
-                        currentSection = .education
-                    case "Assets":
-                        currentSection = .assets
-                    case "City":
-                        currentSection = .city
-                    default:
-                        break
+                    if player.isTestTime && player.isEnrolled {
+                        // Navigate to final exam if it's test time and the player is enrolled
+                        DispatchQueue.main.async {
+                            currentSection.wrappedValue = .final_exam
+                        }
+                    } else if !isDisabled {
+                        switch title {
+                        case "Career":
+                            currentSection.wrappedValue = .job
+                        case "Finances":
+                            currentSection.wrappedValue = .finances
+                        case "Relationships":
+                            currentSection.wrappedValue = .relationships
+                        case "Education":
+                            currentSection.wrappedValue = .education
+                        case "Assets":
+                            currentSection.wrappedValue = .assets
+                        case "City":
+                            currentSection.wrappedValue = .city
+                        default:
+                            break
+                        }
                     }
                 }) {
                     Text(title)
@@ -185,12 +284,20 @@ struct GameView: View, Hashable {
                         .background(Color.cyan)
                         .cornerRadius(10)
                         .shadow(radius: 5)
+                        .opacity(isDisabled ? 0.5 : 1.0) // Set opacity based on disabled state
                 }
+                .disabled(isDisabled)
                 .frame(maxWidth: .infinity) // Ensure the button spans the width
             }
         }
         .padding()
+        .onAppear(){
+            if(!player.isTestTime){
+                savePlayerBalance(context: viewContext, player: player)
+            }
+        }
     }
+
     
     ///# =====================================================
     ///# ============= DEFINES FINANCE BUTTON SET ============
@@ -277,8 +384,7 @@ struct GameView: View, Hashable {
         return VStack {
             // Balance Display Container
             HStack {
-                Text("Balance: $\(Int(player.playerBalance))")
-                    .font(.custom("AvenirNext-Bold", size: 22))
+                Text("Balance: $\(String(format: "%.2f", player.playerBalance))")                    .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .padding()
             }
@@ -408,7 +514,7 @@ struct GameView: View, Hashable {
             }
         }
     }
-    
+        
     @State var percentageChange: Double = 0
 
     func determineStock(player: PlayerData) {
@@ -426,23 +532,26 @@ struct GameView: View, Hashable {
         default:
             successRate = 0.0
         }
-        print(successRate)
-
+        print("Success Rate: \(successRate)")
+        
         let randomOutcome = Double.random(in: 0...1)
         
         if randomOutcome < successRate {
             percentageChange = Double.random(in: 0.01...0.10) // Random increase of 1% to 10%
             player.stockBalance *= (1 + percentageChange)
         } else {
-            // Unsuccessful period: Decrease stock balance by a random percentage
-            percentageChange = -Double.random(in: 0.01...0.10) // Random decrease of 1% to 10% // Random decrease of 1% to 10%
+            percentageChange = -Double.random(in: 0.01...0.10) // Random decrease of 1% to 10%
             player.stockBalance *= (1 + percentageChange)
         }
+        
+        let displayPercentageChange = percentageChange * 100
+        print("Percentage Change: \(displayPercentageChange)%")
+        print("New Stock Balance: \(player.stockBalance)")
     }
 
 
-    @State private var stockAmount: Double = 0
 
+    @State private var stockAmount: Double = 0
     func buyStockButtons(player: PlayerData) -> some View {
         var chosenStock: String
         var stockMessage: String
@@ -473,18 +582,19 @@ struct GameView: View, Hashable {
                             Text(chosenStock)
                                 .font(.custom("AvenirNext-Bold", size: 24))
                                 .foregroundColor(Color.white)
-                            if(percentageChange > 0){
-                                Text("(\(String(format: "%.2f", percentageChange))%)")
+                            if (percentageChange > 0) {
+                                Text("(\(String(format: "%.2f", percentageChange * 100))%)")
                                     .font(.custom("AvenirNext-Bold", size: 18))
                                     .foregroundColor(Color.green)
                             } else {
-                                Text("(\(String(format: "%.2f", percentageChange))%)")
+                                Text("(\(String(format: "%.2f", percentageChange * 100))%)")
                                     .font(.custom("AvenirNext-Bold", size: 18))
                                     .foregroundColor(Color.red)
                             }
+
                             
                         }
-                        Text("Investment: $\(Int(player.stockBalance))")
+                        Text("Investment: $\(String(format: "%.2f", player.stockBalance))")
                             .font(.custom("AvenirNext-Bold", size: 22))
                             .foregroundColor(Color.white)
                         
@@ -540,7 +650,7 @@ struct GameView: View, Hashable {
                         .shadow(radius: 10)
                 }
                 HStack {
-                    Text("Balance: \(Int(player.playerBalance))")
+                    Text("Balance: $\(String(format: "%.2f", player.playerBalance))")
                         .font(.custom("AvenirNext-Bold", size: 22))
                         .foregroundColor(Color.white)
                 }
@@ -641,14 +751,6 @@ struct GameView: View, Hashable {
         }
     }
 
-
-
-
-
-
-
-
-    
     // Casino Button Set
     func casinoButtons() -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
@@ -785,10 +887,8 @@ struct GameView: View, Hashable {
             }
             .padding(.horizontal)
             
-            // Existing Buttons
             let columns = [GridItem(.flexible()), GridItem(.flexible())]
             LazyVGrid(columns: columns, spacing: 20) {
-                
                 
                 Button(action: {
                     currentSection = .casino
@@ -872,50 +972,99 @@ struct GameView: View, Hashable {
         .frame(maxHeight: .infinity)
     }
     
-    ///# =====================================================
-    ///# ============= DEFINES CAREER BUTTON SET =============
-    ///# =====================================================
-    
+    ///# ====================================================================
+    ///# ==================== DEFINES CAREER ACTION SET =====================
+    ///# ====================================================================
+
     func careerButtons() -> some View {
-        let columns = [GridItem(.flexible()), GridItem(.flexible())]
-        return LazyVGrid(columns: columns, spacing: 20) {
+        VStack(spacing: 20) {
             Button(action: { currentSection = .main }) {
                 Text("Back to Main")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)
                     .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
                     .background(Color.red)
                     .cornerRadius(10)
                     .shadow(radius: 5)
             }
-            Button(action: { print("Career Action 1") }) {
-                Text("Career Action 1")
+            
+            Button(action: {
+                currentSection = .side_jobs
+            }) {
+                Text("Side Jobs")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)
                     .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
                     .background(Color.cyan)
                     .cornerRadius(10)
                     .shadow(radius: 5)
             }
-            Button(action: { print("Career Action 2") }) {
-                Text("Career Action 2")
+            
+            Button(action: { print("Full-Time Jobs Action") }) {
+                Text("Full-Time Jobs")
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
                     .shadow(radius: 5)
                     .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
                     .background(Color.cyan)
                     .cornerRadius(10)
                     .shadow(radius: 5)
+                    .opacity(0.5)
+            }
+            .disabled(true)
+        }
+        .padding()
+    }
+    @State private var showAlert = false
+    @State private var tipAmount = 0.0
+    func sideJobSection() -> some View {
+
+        return VStack(spacing: 20) {
+            Button(action: { currentSection = .job }) {
+                Text("Back to Career")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+                    .background(Color.red)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            }
+
+            Button(action: {
+                tipAmount = 1000 * (Double(player.luck) / 100)
+                player.playerBalance += (1000 + tipAmount)
+                player.time += 5
+                savePlayerBalance(context: viewContext, player: player)
+                showAlert = true
+            }) {
+                Text("Uber Driver")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+                    .background(Color.cyan)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Uber Driver"), message: Text("You made $\(Int(tipAmount)) in Tips!"), dismissButton: .default(Text("OK")))
             }
         }
+        .padding()
     }
-    
-    ///# ============= DEFINES RELATIONSHIPS BUTTON SET =============
+
+
+    ///# ====================================================================
+    ///# ==================== DEFINES RELATIONSHIP ACTION SET ===============
+    ///# ====================================================================
     func relationshipsButtons() -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
         return LazyVGrid(columns: columns, spacing: 20) {
@@ -955,47 +1104,432 @@ struct GameView: View, Hashable {
         }
     }
     
-    ///# ============= DEFINES EDUCATION BUTTON SET =============
-    func educationButtons() -> some View {
+    ///# ====================================================================
+    ///# ================ ``DEFINES EDUCATION ACTION SET`` ==================
+    ///# ====================================================================
+
+    func educationButtons(player: PlayerData) -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
-        return LazyVGrid(columns: columns, spacing: 20) {
-            Button(action: { currentSection = .main }) {
-                Text("Back to Main")
+        
+        return Group {
+            if !player.isGraduate && !player.isEnrolled {
+                VStack(spacing: 20) {
+                    // Back to Main button
+                    Button(action: { currentSection = .main }) {
+                        Text("Back to Main")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .foregroundColor(Color.white)
+                            .shadow(radius: 5)
+                            .padding()
+                            .frame(maxWidth: 250, minHeight: 80, maxHeight: 80)
+                            .background(Color.red)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    
+                    // Apply to College button
+                    Button(action: {
+                        currentSection = .entrance_exam
+                        print("Apply to College Action")
+                    }) {
+                        Text("Apply to College")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .foregroundColor(Color.white)
+                            .shadow(radius: 5)
+                            .padding()
+                            .frame(maxWidth: 250, minHeight: 80, maxHeight: 80)
+                            .background(Color.cyan)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                }
+            } else {
+                VStack(spacing: 20) {
+                    // Conditional Message based on player state
+                    VStack(alignment: .leading) {
+                        if player.isGraduate {
+                            Text("Congratulations, you have already received your Diploma in \(player.collegeMajor ?? "").")
+                        } else if player.isEnrolled {
+                            Text("You are currently in Year \(player.collegeYear) of College! You chose to study \(player.collegeMajor ?? "").")
+                        }
+                    }
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
-                    .shadow(radius: 5)
                     .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
-                    .background(Color.red)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
                     .cornerRadius(10)
-                    .shadow(radius: 5)
+                    .padding(.horizontal)
+                    
+                    LazyVGrid(columns: columns, spacing: 20) {
+                        // Back to Main button
+                        Button(action: { currentSection = .main }) {
+                            Text("Back to Main")
+                                .font(.custom("AvenirNext-Bold", size: 22))
+                                .foregroundColor(Color.white)
+                                .shadow(radius: 5)
+                                .padding()
+                                .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+                                .background(Color.red)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                        
+                        // Conditional buttons based on player state
+                        if player.isEnrolled {
+                            Button(action: {
+                                player.stress -= 2
+                                player.time += 5
+                                savePlayerBalance(context: viewContext, player: player)
+                            }) {
+                                Text("Study Hard")
+                                    .font(.custom("AvenirNext-Bold", size: 22))
+                                    .foregroundColor(Color.white)
+                                    .shadow(radius: 5)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+                                    .background(Color.cyan)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                            }
+
+                            Button(action: {
+                                currentSection = .pay_tuition
+                            }) {
+                                Text("Pay Tuition")
+                                    .font(.custom("AvenirNext-Bold", size: 22))
+                                    .foregroundColor(Color.white)
+                                    .shadow(radius: 5)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+                                    .background(Color.cyan)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                            }
+                        }
+
+                        // Pay Tuition button for graduates
+                        if player.isGraduate {
+                            Button(action: { currentSection = .pay_tuition }) {
+                                Text("Pay Tuition")
+                                    .font(.custom("AvenirNext-Bold", size: 22))
+                                    .foregroundColor(Color.white)
+                                    .shadow(radius: 5)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
+                                    .background(Color.cyan)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                            }
+                        }
+                    }
+                }
             }
-            Button(action: { print("Education Action 1") }) {
-                Text("Education Action 1")
+        }
+    }
+
+
+    func payTuitionSection(player: PlayerData) -> some View {
+        let message = player.collegeDebt == 0 ? "You have paid for your Tuition. Thank you!" : "Would you like to pay $10,000 towards your tuition?"
+        let isPayDisabled = player.collegeDebt == 0 || player.playerBalance < 10000
+
+        return VStack(spacing: 20) {
+            VStack(alignment: .leading) {
+                Text(message)
                     .font(.custom("AvenirNext-Bold", size: 22))
                     .foregroundColor(Color.white)
-                    .shadow(radius: 5)
-                    .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
-                    .background(Color.cyan)
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
+                    .padding(.bottom, 5)
+                Text("Debt: $\(Int(player.collegeDebt))")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                Text("Balance: $\(String(format: "%.2f", player.playerBalance))")                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .padding(.bottom, 5)
             }
-            Button(action: { print("Education Action 2") }) {
-                Text("Education Action 2")
-                    .font(.custom("AvenirNext-Bold", size: 22))
-                    .foregroundColor(Color.white)
-                    .shadow(radius: 5)
-                    .padding()
-                    .frame(maxWidth: .infinity, minHeight: 80, maxHeight:80)
-                    .background(Color.cyan)
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
+            .frame(maxWidth: 400, minHeight: 200, maxHeight: 200)
+            .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+            .cornerRadius(10)
+            .padding(.horizontal)
+            
+            // Pay and Back Buttons
+            HStack(spacing: 65) {
+                Button(action: {
+                    if !isPayDisabled {
+                        // max() ensures that collegeDebt does not become negative
+                        player.collegeDebt = max(0, player.collegeDebt - 10000)
+                        player.playerBalance -= 10000
+                        savePlayerBalance(context: viewContext, player: player)
+                    }
+                }) {
+                    Text("Pay")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                        .opacity(isPayDisabled ? 0.5 : 1.0)
+                }
+                .disabled(isPayDisabled)
+                .frame(maxWidth: .infinity)
+                
+                Button(action: { currentSection = .education }) {
+                    Text("Back")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                        .background(Color.red)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+                .frame(maxWidth: .infinity)
             }
         }
     }
     
-    ///# ============= DEFINES ASSETS BUTTON SET =============
+    @State private var entranceExamTracker = 0
+    @State private var entranceExamGrade = 0
+    @State private var disableButtons = false
+    @State private var examMessage = """
+    Would you like to take your entrance exam?
+    
+    Fee: $250
+    Full Tuition: $80,000
+    """
+    
+    func entranceExamButtons(player: PlayerData) -> some View {
+        // First Item: Question, Second Item: Correct Ans, Third Item: Incorrect Ans
+        let questions = [
+            ("What is 5 + 2 x (6 - 4)", "9", "14"),
+            ("What year was the US Revolutionary War?", "1775", "1812"),
+            ("What is the largest planet in our Solar System?", "Jupiter", "Mars")
+        ]
+        
+        return VStack(spacing: 20) {
+            Text(examMessage)
+                .font(.custom("AvenirNext-Bold", size: 22))
+                .foregroundColor(Color.white)
+                .padding()
+                .frame(maxWidth: 400, minHeight: 200, maxHeight: 200)
+                .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+                .cornerRadius(10)
+                .padding(.horizontal)
+            
+            HStack(spacing: 65) {
+                if entranceExamTracker == 0 {
+                    Button(action: {
+                        disableButtons = true
+                        if player.playerBalance >= 250 {
+                            examMessage = "Good Luck!"
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                disableButtons = false
+                                entranceExamTracker = 1
+                                examMessage = questions[entranceExamTracker - 1].0
+                                player.playerBalance -= 250
+                            }
+                        } else {
+                            examMessage = "Insufficient balance. You need at least $250 to take the exam."
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                disableButtons = false
+                                currentSection = .education
+                                examMessage = """
+                                Would you like to take your entrance exam?
+                                
+                                Fee: $250
+                                Full Tuition: $80,000
+                                """
+                            }
+                        }
+                    }) {
+                        Text(disableButtons ? "" : "Yes")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .foregroundColor(Color.white)
+                            .shadow(radius: 5)
+                            .padding()
+                            .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                            .background(disableButtons ? Color.gray : Color.green)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(disableButtons)
+                    
+                    Button(action: {
+                        currentSection = .education
+                    }) {
+                        Text(disableButtons ? "" : "No")
+                            .font(.custom("AvenirNext-Bold", size: 22))
+                            .foregroundColor(Color.white)
+                            .shadow(radius: 5)
+                            .padding()
+                            .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                            .background(disableButtons ? Color.gray : Color.red)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(disableButtons)
+                } else {
+                    examQuestionButtons(player: player, entranceExamTracker: $entranceExamTracker, entranceExamGrade: $entranceExamGrade, disableButtons: $disableButtons, examMessage: $examMessage, questions: questions)
+                }
+            }
+        }
+    }
+
+    private func examQuestionButtons(player: PlayerData, entranceExamTracker: Binding<Int>, entranceExamGrade: Binding<Int>, disableButtons: Binding<Bool>, examMessage: Binding<String>, questions: [(String, String, String)]) -> some View {
+        let currentQuestion = questions[entranceExamTracker.wrappedValue - 1]
+        let answers = [(currentQuestion.1, true), (currentQuestion.2, false)].shuffled()
+        
+        return HStack(spacing: 65) {
+            ForEach(answers, id: \.0) { answer in
+                Button(action: {
+                    answerEntranceQuestion(correct: answer.1, player: player, entranceExamTracker: entranceExamTracker, entranceExamGrade: entranceExamGrade, disableButtons: disableButtons, examMessage: examMessage, questions: questions)
+                }) {
+                    Text(disableButtons.wrappedValue ? "" : answer.0)
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 125, minHeight: 80, maxHeight: 80)
+                        .background(disableButtons.wrappedValue ? Color.gray : Color.green)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+                .disabled(disableButtons.wrappedValue)
+            }
+        }
+    }
+
+    private func answerEntranceQuestion(correct: Bool, player: PlayerData, entranceExamTracker: Binding<Int>, entranceExamGrade: Binding<Int>, disableButtons: Binding<Bool>, examMessage: Binding<String>, questions: [(String, String, String)]) {
+        disableButtons.wrappedValue = true
+        
+        // Display "Correct!" or "Wrong!" immediately
+        examMessage.wrappedValue = correct ? "Correct!" : "Wrong!"
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if correct {
+                entranceExamGrade.wrappedValue += 1
+            }
+
+            entranceExamTracker.wrappedValue += 1
+
+            if entranceExamTracker.wrappedValue > 3 {
+                examMessage.wrappedValue = entranceExamGrade.wrappedValue >= 2 ? "You passed the exam!" : "You failed the exam."
+                if entranceExamGrade.wrappedValue >= 2 {
+                    player.isEnrolled = true
+                }
+                entranceExamTracker.wrappedValue = 0 // Reset for next interaction
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if entranceExamGrade.wrappedValue >= 2 {
+                        examMessage.wrappedValue = "Choose a Major"
+                        currentSection = .major
+                    } else {
+                        // Reset state for retrying the exam
+                        entranceExamTracker.wrappedValue = 0
+                        entranceExamGrade.wrappedValue = 0
+                        disableButtons.wrappedValue = false
+                        examMessage.wrappedValue = """
+                        Would you like to take your entrance exam?
+
+                        Fee: $250
+                        Full Tuition: $80,000
+                        """
+                        currentSection = .education
+                    }
+                }
+            } else {
+                examMessage.wrappedValue = questions[entranceExamTracker.wrappedValue - 1].0
+                disableButtons.wrappedValue = false
+            }
+        }
+    }
+
+    private func majorSelectionView(player: PlayerData) -> some View {
+        
+        VStack(spacing: 20) {
+            Text(examMessage)
+                .font(.custom("AvenirNext-Bold", size: 22))
+                .foregroundColor(Color.white)
+                .shadow(radius: 5)
+                .padding()
+                .frame(maxWidth: 300, minHeight: 100, maxHeight: 100)
+                .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+                .cornerRadius(10)
+                .shadow(radius: 5)
+
+            VStack(spacing: 20) {
+                Button(action: {
+                    player.collegeMajor = "Comp Sci"
+                    finalizeMajorSelection(player: player)
+                }) {
+                    Text("Comp Sci")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 300, minHeight: 60, maxHeight: 60)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+
+                Button(action: {
+                    player.collegeMajor = "History"
+                    finalizeMajorSelection(player: player)
+                }) {
+                    Text("History")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 300, minHeight: 60, maxHeight: 60)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+
+                Button(action: {
+                    player.collegeMajor = "Biology"
+                    finalizeMajorSelection(player: player)
+                }) {
+                    Text("Biology")
+                        .font(.custom("AvenirNext-Bold", size: 22))
+                        .foregroundColor(Color.white)
+                        .shadow(radius: 5)
+                        .padding()
+                        .frame(maxWidth: 300, minHeight: 60, maxHeight: 60)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                        .shadow(radius: 5)
+                }
+            }
+        }
+    }
+    
+    private func finalizeMajorSelection(player: PlayerData) {
+        disableButtons = true
+        examMessage = "You are now studying \(player.collegeMajor ?? "")"
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            player.isEnrolled = true
+            player.time += 60
+            player.collegeDebt += 80000
+            player.stress += 80
+            
+            savePlayerBalance(context: viewContext, player: player)
+            disableButtons = false
+            currentSection = .education
+        }
+    }
+    
+    
+    
+    ///# ====================================================================
+    ///# ==================== ASSETS SECTION DISPLAYS PLAYERDATA ============
+    ///# ====================================================================
     func assetsButtons() -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
         return LazyVGrid(columns: columns, spacing: 20) {
@@ -1025,7 +1559,9 @@ struct GameView: View, Hashable {
             }
         }
     }
-    ///# ============= DEFINES CITY BUTTON SET =============
+    ///# ====================================================================
+    ///# ==================== DEFINES CITY ACTION SET =======================
+    ///# ====================================================================
     func cityButtons() -> some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible())]
         return LazyVGrid(columns: columns, spacing: 20) {
@@ -1083,6 +1619,70 @@ struct GameView: View, Hashable {
             }
         }
     }
+    func deathSection() -> some View {
+        VStack(spacing: 20) {
+            Text("\(player.playerName ?? "") has passed away at the age \(player.playerAge).")
+                .font(.custom("AvenirNext-Bold", size: 22))
+                .foregroundColor(Color.white)
+                .shadow(radius: 5)
+                .padding()
+                .frame(minWidth: 350, maxWidth: 350, minHeight: 200, maxHeight: 200)
+                .background(Color(red: 40 / 255, green: 40 / 255, blue: 40 / 255))
+                .cornerRadius(10)
+
+            NavigationLink(destination: HomeView()) {
+                Text("Start New Game")
+                    .font(.custom("AvenirNext-Bold", size: 22))
+                    .foregroundColor(Color.white)
+                    .shadow(radius: 5)
+                    .padding()
+                    .frame(maxWidth: 300, minHeight: 80, maxHeight: 80)
+                    .background(Color.green)
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+            }
+        }
+        .padding()
+    }
+    
+    func calculateHealthDecrease() {
+        
+        // Calculate additional stress based on total debt
+        let debtStress = ((player.collegeDebt + player.debt) / 100000) * 125
+        player.stress += debtStress
+        
+        // Define the stress multiplier based on the player's stress level
+        let stressMultiplier: Double
+        if player.stress >= 125 {
+            stressMultiplier = 3.0 // Severe stress
+        } else if player.stress >= 75 {
+            stressMultiplier = 2.0 // High stress
+        } else if player.stress >= 25 {
+            stressMultiplier = 1.0 // Moderate stress
+        } else {
+            stressMultiplier = 0.5 // Low stress
+        }
+
+        // Calculate the health decrease using the formula
+        let healthDecrease = log(Double(player.playerAge)) * stressMultiplier * 0.5
+
+        // Update the player's health
+        player.health -= healthDecrease
+
+        // Ensure health does not drop below zero
+        if player.health < 0 {
+            player.health = 0
+        }
+
+        // Increase player's age by 1 year
+        player.playerAge += 1
+
+        // Print the updated health for debugging purposes
+        print("Player's age: \(player.playerAge)")
+        print("Health decrease: \(healthDecrease)")
+        print("Player's health: \(player.health)")
+    }
+
 }///# ============= END OF BUTTON NAVIGATION =============
 
 
@@ -1097,14 +1697,26 @@ struct GameView_Previews: PreviewProvider {
         let newPlayer = PlayerData(context: context)
         newPlayer.playerName = "Jane"
         newPlayer.gender = "Female"
-        newPlayer.intelligence = 8
-        newPlayer.playerBalance = 100
+        newPlayer.collegeMajor = ""
+        newPlayer.intelligence = 1
+        newPlayer.luck = 10
+        newPlayer.playerAge = 21
+        newPlayer.playerBalance = 350
         newPlayer.saveDate = Date()
-        newPlayer.hasLoan = false
         newPlayer.debt = 0
-        newPlayer.hasStock = false
         newPlayer.stockBalance = 0
-        
+        newPlayer.stress = 0
+        newPlayer.health = 100
+        newPlayer.time = 0
+        newPlayer.collegeDebt = 0
+        newPlayer.collegeYear = 1
+        newPlayer.hasLoan = false
+        newPlayer.hasStock = false
+        newPlayer.isGraduate = false
+        newPlayer.isEnrolled = false
+        newPlayer.isTestTime = false
+        newPlayer.testTaken = false
+        newPlayer.isEmployed = false
         
         return GameView(
             player: newPlayer

@@ -12,6 +12,7 @@
 		96902B002D00C4540054BA4D /* DoctorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96902AFC2D00C4540054BA4D /* DoctorsView.swift */; };
 		96902B022D03AA660054BA4D /* AssetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96902B012D03AA660054BA4D /* AssetView.swift */; };
 		AF93DB6F2CE41D1E00B9475C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF93DAC62CE3FECA00B9475C /* Assets.xcassets */; };
+		DB7054722D0636E900341613 /* FinalExamLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7054712D0636E800341613 /* FinalExamLogic.swift */; };
 		DB7860612CED582500B2842B /* BlackjackScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7860602CED582500B2842B /* BlackjackScene.swift */; };
 		DB7860642CED597B00B2842B /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7860632CED597B00B2842B /* GameScene.swift */; };
 		DB9810C02CB1F9E5007950A0 /* CreateCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB9810BF2CB1F9E4007950A0 /* CreateCharacterView.swift */; };
@@ -50,6 +51,7 @@
 		96902B012D03AA660054BA4D /* AssetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetView.swift; sourceTree = "<group>"; };
 		AF93DAC52CE3FEC800B9475C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		AF93DAC62CE3FECA00B9475C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DB7054712D0636E800341613 /* FinalExamLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinalExamLogic.swift; sourceTree = "<group>"; };
 		DB7860602CED582500B2842B /* BlackjackScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackjackScene.swift; sourceTree = "<group>"; };
 		DB7860632CED597B00B2842B /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		DB9810BF2CB1F9E4007950A0 /* CreateCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCharacterView.swift; sourceTree = "<group>"; };
@@ -123,6 +125,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		DB70546F2D0636CC00341613 /* Logic */ = {
+			isa = PBXGroup;
+			children = (
+				DB7054712D0636E800341613 /* FinalExamLogic.swift */,
+			);
+			path = Logic;
+			sourceTree = "<group>";
+		};
 		DB70A8A22CBAFB510036F93D /* LocalDB */ = {
 			isa = PBXGroup;
 			children = (
@@ -163,6 +173,7 @@
 		DBA3E6622CABA04C0006036A /* LifeSim */ = {
 			isa = PBXGroup;
 			children = (
+				DB70546F2D0636CC00341613 /* Logic */,
 				DB7860622CED595100B2842B /* Scenes */,
 				DB70A8A22CBAFB510036F93D /* LocalDB */,
 				DB5F15372CE563360041BA4C /* Controllers */,
@@ -336,6 +347,7 @@
 				96902AFF2D00C4540054BA4D /* VacationView.swift in Sources */,
 				96902B022D03AA660054BA4D /* AssetView.swift in Sources */,
 				DBA3E6642CABA04C0006036A /* LifeSimApp.swift in Sources */,
+				DB7054722D0636E900341613 /* FinalExamLogic.swift in Sources */,
 				DB9810C22CB1FA1D007950A0 /* GameView.swift in Sources */,
 				DB9810C02CB1F9E5007950A0 /* CreateCharacterView.swift in Sources */,
 				DBDB4C0A2D035D5C00ED9633 /* LifeSimAppModel.xcdatamodeld in Sources */,
