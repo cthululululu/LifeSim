@@ -59,8 +59,16 @@ class GameScene: SKScene, ObservableObject {
         return (1...15).map { playerAtlas.textureNamed("boySad (\($0))")}
     }
     
-    //Function for calling happy sprite animation
+    // Function for calling happy sprite animation
     func happyAnimation() {
+        ensurePlayersAreSetUp()
+        
+        // Ensure textures are loaded and not empty
+        guard !playerHappyBoy.isEmpty || !playerHappyGirl.isEmpty else {
+            print("Error with texture: Happy textures are empty")
+            return
+        }
+        
         let happyTextures: SKAction
         
         if gender == "Male" {
@@ -70,8 +78,8 @@ class GameScene: SKScene, ObservableObject {
             happyTextures = SKAction.animate(with: playerHappyGirl, timePerFrame: 0.05)
             playerGirl.run(happyTextures, withKey: "happyAnimation")
         }
-        
     }
+
     
     //Function for calling sad sprite animation
     func sadAnimation() {
@@ -85,12 +93,29 @@ class GameScene: SKScene, ObservableObject {
             playerGirl.run(sadTextures, withKey: "sadAnimation")
         }
     }
-    
-    //Function for calling death animation
+
+    // Function to ensure sprite nodes are set up
+    func ensurePlayersAreSetUp() {
+        if playerBoy == nil || playerGirl == nil {
+            setUpPlayers()
+        } else {
+            if playerBoy.parent == nil {
+                addChild(playerBoy)
+            }
+            if playerGirl.parent == nil {
+                addChild(playerGirl)
+            }
+        }
+    }
+
+
+    // Function for calling death animation
     func spriteDeath() {
+        ensurePlayersAreSetUp()
+
         let deathTextures: [SKTexture]
         let sprite: SKSpriteNode
-        
+
         if gender == "Male" {
             deathTextures = playerDeathTextureBoy
             sprite = playerBoy
@@ -98,28 +123,54 @@ class GameScene: SKScene, ObservableObject {
             deathTextures = playerDeathTextureGirl
             sprite = playerGirl
         }
-        
+
         guard !deathTextures.isEmpty else {
-            print ("Error with texture")
+            print("Error with texture: Empty deathTextures")
             return
         }
+
+        // Stop all actions and hide the sprite to avoid overlap
+        sprite.removeAllActions()
+        sprite.isHidden = true
+
+        // Create a temporary node for the death animation
+        let tempSprite = SKSpriteNode(texture: deathTextures.first)
+        tempSprite.position = sprite.position
+        tempSprite.setScale(0.6)
+        addChild(tempSprite)
+
         let deathAnimation = SKAction.animate(with: deathTextures, timePerFrame: 0.05)
-        
+
         let setLastFrame = SKAction.run {
-            sprite.texture = deathTextures.last
+            tempSprite.texture = deathTextures.last
+            sprite.isHidden = true // Keep the original sprite hidden
         }
-        
+
         let sequence = SKAction.sequence([deathAnimation, setLastFrame])
-        
-        sprite.run(sequence, withKey: "playerDeathAnimation")
-        
+
+        print("Running death animation")
+
+        tempSprite.run(sequence, withKey: "playerDeathAnimation")
     }
+
     
     //func to stop current animation, this is to avoid overlaps
     func stopCurrentAnimation() {
-        playerBoy.removeAllActions()
-        playerGirl.removeAllActions()
+        // Ensure playerBoy is initialized and safely remove all actions
+        if let playerBoy = playerBoy {
+            playerBoy.removeAllActions()
+        } else {
+            print("playerBoy is nil in stopCurrentAnimation")
+        }
+        
+        // Ensure playerGirl is initialized and safely remove all actions
+        if let playerGirl = playerGirl {
+            playerGirl.removeAllActions()
+        } else {
+            print("playerGirl is nil in stopCurrentAnimation")
+        }
     }
+
     
     
     func configureCharacter(name: String, gender:String) {
@@ -130,22 +181,26 @@ class GameScene: SKScene, ObservableObject {
     
     // Initial player texture and position
     func setUpPlayers() {
-        // Setting up Boy Character Sprite
-        playerBoy = SKSpriteNode(imageNamed: "maleSprite")
-        playerBoy.position = CGPoint(x: size.width/2 + 32, y:size.height/2)
-       // playerBoy.setScale(0.8)
-        addChild(playerBoy)
+        if playerBoy == nil {
+            // Setting up Boy Character Sprite
+            playerBoy = SKSpriteNode(imageNamed: "maleSprite")
+            playerBoy.position = CGPoint(x: size.width/2 + 32, y: size.height/2)
+            playerBoy.setScale(0.7)
+            addChild(playerBoy)
+        }
+
+        if playerGirl == nil {
+            // Setting up Girl Character Sprite
+            playerGirl = SKSpriteNode(imageNamed: "femaleSprite")
+            playerGirl.position = CGPoint(x: size.width/2 - 5, y: size.height/2)
+            playerGirl.setScale(0.7)
+            addChild(playerGirl)
+        }
         
-        
-        playerGirl = SKSpriteNode(imageNamed: "femaleSprite")
-        playerGirl.position = CGPoint(x: size.width/2 - 5, y:size.height/2)
-        playerGirl.setScale(0.7)
-        addChild(playerGirl)
-        
-        nameLabel = SKLabelNode(text:playerName)
+        nameLabel = SKLabelNode(text: playerName)
         nameLabel.fontSize = 35
         nameLabel.fontColor = .black
-        nameLabel.position = CGPoint(x:size.width/2, y:size.height/2 + 75)
+        nameLabel.position = CGPoint(x: size.width / 2, y: size.height / 2 + 75)
         addChild(nameLabel)
         
         if gender == "Male" {
@@ -157,6 +212,7 @@ class GameScene: SKScene, ObservableObject {
         }
         startIdleAnimations()
     }
+
     
     // Called when scene appears
     override func didMove(to view: SKView) {

@@ -20,6 +20,11 @@ struct GameView: View, Hashable {
     @State private var betAmount: Int = 0
     @State private var loanMessage: String = ""
     
+    @State private var gameScene: GameScene
+    init(player: PlayerData) {
+        _gameScene = State(initialValue: GameScene(size: CGSize(width: 300, height: 300), playerName: player.playerName ?? "Unknown", gender: player.gender ?? "Male")); self.player = player
+    }
+    
    
     var body: some View {
         VStack(spacing: 0) {
@@ -46,7 +51,7 @@ struct GameView: View, Hashable {
                                 blackjackScene.scaleMode = .resizeFill
                             }
                     } else {
-                        SpriteView(scene: GameScene(size: CGSize(width: 300, height: 300), playerName: player.playerName ?? "Unknown", gender: player.gender ?? "Male"))
+                        SpriteView(scene: gameScene)
                     }
                 }
                 
@@ -1642,6 +1647,10 @@ struct GameView: View, Hashable {
             }
         }
         .padding()
+        .onAppear(){
+            gameScene.stopCurrentAnimation()
+            gameScene.spriteDeath()
+        }
     }
     
     func calculateHealthDecrease() {
@@ -1705,7 +1714,7 @@ struct GameView_Previews: PreviewProvider {
         newPlayer.debt = 0
         newPlayer.stockBalance = 0
         newPlayer.stress = 0
-        newPlayer.health = 100
+        newPlayer.health = 0
         newPlayer.time = 0
         newPlayer.collegeDebt = 0
         newPlayer.collegeYear = 1
